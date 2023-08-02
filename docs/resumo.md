@@ -20,10 +20,12 @@ determinado _data set_, denotado por $K$
 - Para encontrar o melhor valor de $K$, podemos usar a distancia média dos pontos
 dentro de um cluster até seu centroide, 
 - Essa técnica é denominada de Elbow method (método do cotovelo)
-
-$$ WSS = \sum_{i=1}^{N_{C}}\sum_{\bold{x} \in C_{i}} d(\bold{x}, \bar{x}_{C_{i}}) $$
+$$ WCSS = \sum_{i=1}^{N_C} \sum_{x \in C_{i}}(\text{distance}(x, C{i}))^2 $$
 
 - Onde $C_i$ é um grupo e $N_C$ é o número de grupos.
+- Objetivo: Encontrar um WCSS baixo com número de clusters pequeno.
+> WCSS = within cluster sum of squares.
+
 
 
 ###### Referências:
