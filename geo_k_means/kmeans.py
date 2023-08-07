@@ -1,4 +1,5 @@
 from math import sqrt
+from random import sample
 
 import numpy as np
 
@@ -31,3 +32,50 @@ def euclidean_distance(ponto1: list[int], ponto2: list[int]) -> float:
     distance = sum((x - y) ** 2 for x, y in zip(ponto1, ponto2)) ** 0.5
 
     return distance
+
+
+class KMeans:
+    def __init__(self, numero_clusters: int, maximo_interacoes: int = 100):
+        self.numero_clusters = numero_clusters
+        self.maximo_interacões = maximo_interacoes
+
+    # def fit(self, data_x:list[int]):
+    # centroides = sample(data_x, self.numero_clusters)
+
+    def update_clusters(
+        self, data_x: list[list[float]], centroides: list[list[float]]
+    ) -> dict[tuple(list[float]), list[float]]:
+        """
+        Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que apresentam a menor distância a partir da base de dados.
+
+        Parameters:
+            data_x (list[list[float]]): Uma lista de pontos, onde cada ponto é uma lista de coordenadas.
+            centroides (list[list[float]]): Uma lista de centroides, onde cada centróide é uma lista de coordenadas.
+
+        Returns:
+            Um dicionário onde as chaves são os centroides e os valores são as listas dos melhores pontos associados a cada centróide.
+
+        Examples:
+            >>> test = KMeans(2)
+            >>> data_x = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7]]
+            >>> centroides = [[3, 4], [8, 8]]
+            >>> test.update_clusters(data_x, centroides)
+            {(3, 4): [[2, 1], [6, 4], [3, 5]], (8, 8): [[8, 7], [9, 8], [10, 7]]}
+        """
+        clusters = {}
+        for centroide in centroides:
+            clusters[tuple(centroide)] = []
+
+        for x in data_x:
+            menor_distancia = float('inf')
+            melhor_centroide = None
+
+            for centroide in centroides:
+                distancia = euclidean_distance(x, centroide)
+                if distancia < menor_distancia:
+                    menor_distancia = distancia
+                    melhor_centroide = centroide
+
+            clusters[tuple(melhor_centroide)].append(x)
+
+        return clusters
