@@ -26,7 +26,27 @@ $$ WCSS = \sum_{i=1}^{N_C} \sum_{x \in C_{i}}(\text{distance}(x, C{i}))^2 $$
 - Objetivo: Encontrar um WCSS baixo com número de clusters pequeno.
 > WCSS = within cluster sum of squares.
 
+##### K Médias:
+- **Objetivo**: minimizar a distância euclidiana quadrada média.
+$$ RSS = \sum_{j=1}^{k} \sum_{i=1}^{n} |x_{i}^{j} - c_{j}|^2 $$
 
+RSS = residual square sum
+
+k = número de clusteres
+
+n = número de pontos 
+
+c = centroide do cluster j
+
+x = dado do banco de dados
+
+###### Método de desenvolvimento:
+- Encontrar os centroides de forma aleatória. 
+- O algoritmo move os centroides com objetivo de minimizar o valor de RSS
+- Pode apresentar vários critério de parada:
+    - Fixar um número máximo de iterações.
+    - Não ocorre a mudança do local dos centroides.
+    - RSS muito baixo, garantindo a convergência.
 
 ###### Referências:
 [_Flat Clustering_ - Christopher D. Manning, Prabhakar Raghavan and Hinrich Schütze
@@ -34,6 +54,4 @@ $$ WCSS = \sum_{i=1}^{N_C} \sum_{x \in C_{i}}(\text{distance}(x, C{i}))^2 $$
 
 [K-Means from scratch - Turner Luke
 ](https://towardsdatascience.com/create-your-own-k-means-clustering-algorithm-in-python-d7d4c9077670)
-
-
 
