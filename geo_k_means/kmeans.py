@@ -56,11 +56,16 @@ class KMeans:
             Um dicionário onde as chaves são os centroides e os valores são as listas dos melhores pontos associados a cada centróide.
 
         Examples:
-            >>> test = KMeans(2)
-            >>> data_x = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7]]
-            >>> centroides = [[3, 4], [8, 8]]
-            >>> test.update_clusters(data_x, centroides)
+            >>> test1 = KMeans(2)
+            >>> data1_x = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7]]
+            >>> centroides1 = [[3, 4], [8, 8]]
+            >>> test1.update_clusters(data1_x, centroides1)
             {(3, 4): [[2, 1], [6, 4], [3, 5]], (8, 8): [[8, 7], [9, 8], [10, 7]]}
+            >>> test2 = KMeans(3)
+            >>> data2_x = [[0, 1, 0], [2, 1, 0], [-1, -1, -1], [1, 1, 1], [6, 7, 8], [6, 6, 6], [9, 10, 11]]
+            >>> centroides2 = [[0, 0, 0], [8, 8, 8]]
+            >>> test2.update_clusters(data2_x, centroides2)
+            {(0, 0, 0): [[0, 1, 0], [2, 1, 0], [-1, -1, -1], [1, 1, 1]], (8, 8, 8): [[6, 7, 8], [6, 6, 6], [9, 10, 11]]}
         """
         clusters = {}
         for centroide in centroides:
