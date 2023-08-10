@@ -1,5 +1,5 @@
+import random
 from math import sqrt
-from random import sample
 
 import numpy as np
 
@@ -35,12 +35,9 @@ def euclidean_distance(ponto1: list[int], ponto2: list[int]) -> float:
 
 
 class KMeans:
-    def __init__(self, numero_clusters: int, maximo_interacoes: int = 100):
+    def __init__(self, numero_clusters: int, maximo_iteracoes: int = 100):
         self.numero_clusters = numero_clusters
-        self.maximo_interacões = maximo_interacoes
-
-    # def fit(self, data_x:list[int]):
-    # centroides = sample(data_x, self.numero_clusters)
+        self.maximo_iteracoes = maximo_iteracoes
 
     def update_clusters(
         self, data_x: list[list[float]], centroides: list[list[float]]
@@ -102,6 +99,9 @@ class KMeans:
             >>> clusters = {(3, 4): [[3, 3], [6, 4], [3, 5]], (8, 8): [[8, 7], [9, 8], [10, 9]]}
             >>> kmeans.update_centroides(clusters)
             [[4.0, 4.0], [9.0, 8.0]]
+            >>> clusters = {(2, 3, 1): [[0, 0, 0], [-1, -1, -1], [1, 2, 3], [3, 2, 1]], (8, 8, 8): [[5, 6, 7], [9, 8, 10]]}
+            >>> kmeans.update_centroides(clusters)
+            [[0.75, 0.75, 0.75], [7.0, 7.0, 8.5]]
         """
         novos_centroides = []
 
@@ -120,14 +120,33 @@ class KMeans:
 
         return novos_centroides
 
+    def fit(self, data: list[list[float]]) -> bool:
 
-def main():
-    kmeans = KMeans(2)
-    clusters = {
-        (3, 4): [[3, 3], [6, 4], [3, 5]],
-        (8, 8): [[8, 7], [9, 8], [10, 9]],
-    }
-    print(kmeans.update_centroides(clusters))
+        centroides = random.sample(list(data), self.numero_clusters)
 
+        for i in range(self.maximo_iteracoes):
+            """
+            Executa o algoritmo KMeans para clusterização dos dados.
 
-main()
+            Parameters:
+                data (list[list[float]]): Uma lista contendo os pontos de dados a serem clusterizados.
+
+            Returns:
+                bool: True se a convergência foi alcançada, False caso contrário.
+
+            Examples:
+                >>>test = KMeans(2)
+                >>>data = data = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7], [1, 2], [4, 3], [5, 5]]
+                >>>test.fit(data)
+                True
+            """
+            clusters = self.update_clusters(data, centroides)
+
+            novos_centroides = self.update_centroides(clusters)
+
+            if np.array_equal(novos_centroides, centroides):
+                self.centroides = centroides
+                self.clusters = clusters
+                return True
+
+            centroides = novos_centroides
