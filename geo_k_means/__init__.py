@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 
-from geo_k_means.kmeans import KMeans
+from geo_k_means.kmeans import KMeans # usando o taskipy 
+# from kmeans import KMeans #rodando o codigo normalmente
 
 
 def duas_dimensoes():
