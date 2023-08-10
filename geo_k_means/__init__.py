@@ -4,7 +4,7 @@ from sklearn.datasets import make_blobs
 from geo_k_means.kmeans import KMeans
 
 
-def main():
+def duas_dimensoes():
     data, groupos = make_blobs(
         n_samples=300, centers=3, cluster_std=1, random_state=42
     )
@@ -35,4 +35,4 @@ def main():
     plt.show()
 
 
-main()
+duas_dimensoes()
