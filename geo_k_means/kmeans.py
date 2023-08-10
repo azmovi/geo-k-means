@@ -49,8 +49,8 @@ class KMeans:
         Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que apresentam a menor distância a partir da base de dados.
 
         Parameters:
-            data_x (list[list[float]]): Uma lista de pontos, onde cada ponto é uma lista de coordenadas.
-            centroides (list[list[float]]): Uma lista de centroides, onde cada centróide é uma lista de coordenadas.
+            data_x: Uma lista de pontos, onde cada ponto é uma lista de coordenadas.
+            centroides: Uma lista de centroides, onde cada centróide é uma lista de coordenadas.
 
         Returns:
             Um dicionário onde as chaves são os centroides e os valores são as listas dos melhores pontos associados a cada centróide.
@@ -84,3 +84,50 @@ class KMeans:
             clusters[tuple(melhor_centroide)].append(x)
 
         return clusters
+
+    def update_centroides(
+        self, clusters: dict[tuple(list[float]), list[float]]
+    ) -> list[float]:
+        """
+        Atualiza os valores dos centróides com base na média das coordenadas dos pontos em cada cluster.
+
+        Parameters:
+            clusters: Um dicionário onde as chaves são as coordenadas dos centróides e os valores são listas de pontos atribuídos a cada centróide.
+
+        Returns:
+            Uma lista de novos centróides, onde cada centróide é uma lista de coordenadas recalculadas.
+
+        Examples:
+            >>> kmeans = KMeans(2)
+            >>> clusters = {(3, 4): [[3, 3], [6, 4], [3, 5]], (8, 8): [[8, 7], [9, 8], [10, 9]]}
+            >>> kmeans.update_centroides(clusters)
+            [[4.0, 4.0], [9.0, 8.0]]
+        """
+        novos_centroides = []
+
+        for cluster, pontos in clusters.items():
+            novo_centroide = []
+            num_pontos = len(pontos)
+
+            for dimen in range(len(pontos[0])):
+                soma = 0
+                for ponto in pontos:
+                    soma += ponto[dimen]
+
+                media = soma / num_pontos
+                novo_centroide.append(media)
+            novos_centroides.append(novo_centroide)
+
+        return novos_centroides
+
+
+def main():
+    kmeans = KMeans(2)
+    clusters = {
+        (3, 4): [[3, 3], [6, 4], [3, 5]],
+        (8, 8): [[8, 7], [9, 8], [10, 9]],
+    }
+    print(kmeans.update_centroides(clusters))
+
+
+main()
