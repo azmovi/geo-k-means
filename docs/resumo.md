@@ -47,6 +47,9 @@ x = dado do banco de dados
     - Fixar um número máximo de iterações.
     - Não ocorre a mudança do local dos centroides.
     - RSS muito baixo, garantindo a convergência.
+##### Recalcular o valor dos centroides
+- Dado os pontos pertencentes a um centroide, devemos fazer a media entre as 
+dimensões e o resultado será o valor do novo centroide.
 
 ###### Referências:
 [_Flat Clustering_ - Christopher D. Manning, Prabhakar Raghavan and Hinrich Schütze
