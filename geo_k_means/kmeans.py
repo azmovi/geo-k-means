@@ -4,7 +4,7 @@ from math import sqrt
 import numpy as np
 
 
-def euclidean_distance(ponto1: list[int], ponto2: list[int]) -> float:
+def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
     """
     Calcula a distância entre dois pontos no espaço euclidiano n-dimensional.
 
