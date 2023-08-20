@@ -121,25 +121,25 @@ class KMeans:
         return novos_centroides
 
     def fit(self, data: list[list[float]]) -> bool:
+        """
+        Executa o algoritmo KMeans para clusterização dos dados.
+
+        Parameters:
+            data (list[list[float]]): Uma lista contendo os pontos de dados a serem clusterizados.
+
+        Returns:
+            bool: True se a convergência foi alcançada, False caso contrário.
+
+        Examples:
+            >>> test = KMeans(2)
+            >>> data = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7], [1, 2], [4, 3], [5, 5]]
+            >>> test.fit(data)
+            True
+        """
 
         centroides = random.sample(list(data), self.numero_clusters)
 
         for i in range(self.maximo_iteracoes):
-            """
-            Executa o algoritmo KMeans para clusterização dos dados.
-
-            Parameters:
-                data (list[list[float]]): Uma lista contendo os pontos de dados a serem clusterizados.
-
-            Returns:
-                bool: True se a convergência foi alcançada, False caso contrário.
-
-            Examples:
-                >>>test = KMeans(2)
-                >>>data = data = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7], [1, 2], [4, 3], [5, 5]]
-                >>>test.fit(data)
-                True
-            """
             clusters = self.update_clusters(data, centroides)
 
             novos_centroides = self.update_centroides(clusters)
