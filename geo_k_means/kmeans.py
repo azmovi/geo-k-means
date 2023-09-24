@@ -1,5 +1,4 @@
 import random
-from math import sqrt
 
 import numpy as np
 
@@ -41,7 +40,7 @@ class KMeans:
 
     def update_clusters(
         self, data_x: list[list[float]], centroides: list[list[float]]
-    ) -> dict[tuple(list[float]), list[float]]:
+    ) -> dict[tuple[float], list[list[float]]]:
         """
         Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que apresentam a menor distância a partir da base de dados.
 
@@ -78,13 +77,14 @@ class KMeans:
                     menor_distancia = distancia
                     melhor_centroide = centroide
 
-            clusters[tuple(melhor_centroide)].append(x)
+            if melhor_centroide is not None:
+                clusters[tuple(melhor_centroide)].append(x)
 
         return clusters
 
     def update_centroides(
-        self, clusters: dict[tuple(list[float]), list[float]]
-    ) -> list[float]:
+        self, clusters: dict[tuple[float], list[list[float]]]
+    ) -> list[list[float]]:
         """
         Atualiza os valores dos centróides com base na média das coordenadas dos pontos em cada cluster.
 
@@ -105,7 +105,7 @@ class KMeans:
         """
         novos_centroides = []
 
-        for cluster, pontos in clusters.items():
+        for _, pontos in clusters.items():
             novo_centroide = []
             num_pontos = len(pontos)
 
@@ -135,18 +135,22 @@ class KMeans:
             >>> data = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7], [1, 2], [4, 3], [5, 5]]
             >>> test.fit(data)
             True
+            >>> data2 = []
+            >>> test.fit(data2)
+            False
         """
+        if len(data) != 0:
+            centroides = random.sample(list(data), self.numero_clusters)
 
-        centroides = random.sample(list(data), self.numero_clusters)
+            for _ in range(self.maximo_iteracoes):
+                clusters = self.update_clusters(data, centroides)
 
-        for i in range(self.maximo_iteracoes):
-            clusters = self.update_clusters(data, centroides)
+                novos_centroides = self.update_centroides(clusters)
 
-            novos_centroides = self.update_centroides(clusters)
+                if np.array_equal(novos_centroides, centroides):
+                    self.centroides = centroides
+                    self.clusters = clusters
+                    return True
 
-            if np.array_equal(novos_centroides, centroides):
-                self.centroides = centroides
-                self.clusters = clusters
-                return True
-
-            centroides = novos_centroides
+                centroides = novos_centroides
+        return False
