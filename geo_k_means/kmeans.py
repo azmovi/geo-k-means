@@ -35,6 +35,16 @@ def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
 
 class KMeans:
     def __init__(self, numero_clusters: int, maximo_iteracoes: int = 100):
+        """
+        Inicialização de um objeto kmean
+
+        Paramenters:
+            numero_clusters: Um numero que define a quantidade de centroides, usado para calcular o teorema do cotovelo
+            maximo_interacoes: O ultimo criterio de parada do algortimo, ele é passado com o valor 100 de padrão.
+        Examples:
+            kmean = Kmeans(3)
+
+        """
         self.numero_clusters = numero_clusters
         self.maximo_iteracoes = maximo_iteracoes
 
