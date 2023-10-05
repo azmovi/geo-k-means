@@ -34,7 +34,9 @@ def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
 
 
 class KMeans:
-    def __init__(self, numero_clusters: int, maximo_iteracoes: int = 100) -> None:
+    def __init__(
+        self, numero_clusters: int, maximo_iteracoes: int = 100
+    ) -> None:
         """
         Inicialização de um objeto kmean
 
