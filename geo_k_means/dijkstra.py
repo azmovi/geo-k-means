@@ -2,7 +2,7 @@ import heapq
 
 
 class Grafo:
-    def __init__(self, size: int):
+    def __init__(self, size: int) -> None:
         """
         Inicialização de um objeto grafo baseado no número de vértices
 
