@@ -10,8 +10,12 @@ def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
     Parameters:
         ponto1: lista de coordenadas do primeiro ponto
         ponto2: lista de coordenadas do segundo ponto
+
     Returns:
         Um float que represeta a distância entre os dois pontos.
+
+    Raises:
+        ValueError: Se os pontos tiverem dimensões diferentes.
 
     Examples:
         >>> euclidean_distance([2, 1], [6, 4])
@@ -27,7 +31,7 @@ def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
     """
     if len(ponto1) != len(ponto2):
         print(ponto1)
-        raise ValueError('pontos devem ter a mesma dimensão.')
+        raise ValueError('Os pontos devem ter a mesma dimensão.')
 
     distance = sum((x - y) ** 2 for x, y in zip(ponto1, ponto2)) ** 0.5
 
@@ -174,12 +178,10 @@ class KMeans:
 
                 novos_centroides = self.update_centroides(clusters)
 
-                if np.array_equal(novos_centroides, centroides):
+                if np.array_equal(np.array(novos_centroides), centroides):
                     self.centroides = centroides
                     self.clusters = clusters
                     return True
 
                 centroides = novos_centroides
         return False
-
-
