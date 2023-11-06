@@ -1,12 +1,19 @@
 from sklearn.datasets import fetch_openml
-from openml import tasks, runs
-from kmeans import KMeans
 
-df = fetch_openml(name='iris', version=1, parser='auto')
+# from geo_k_means.kmeans import KMeans  # Pytest
 
-task = tasks.get_task(4537)
-print(task)
-kmeans = KMeans(3)
-print(kmeans.fit(df.data.values))
-#print(cluster.clusters)
-#print(kmeans.centroides)
+from kmeans import KMeans  # Execução Padrão
+
+
+def desempenho_iris() -> None:
+    df = fetch_openml(name='iris', version=1, parser='auto')
+    kmeans = KMeans(3)
+    print(kmeans.fit(df.data.values))
+
+
+def main():
+    desempenho_iris()
+
+
+if __name__ == "__main__":
+    main()
