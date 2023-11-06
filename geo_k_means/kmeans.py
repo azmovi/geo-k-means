@@ -163,11 +163,11 @@ class KMeans:
             >>> kmeans.rotulo()
             True
         """
-        index = 0
+        index = self.numero_clusters - 1
         for key in self.clusters.keys():
             for value in self.clusters[key]:
                 self.labels.append(index)
-            index += 1
+            index -= 1
 
         return True
 

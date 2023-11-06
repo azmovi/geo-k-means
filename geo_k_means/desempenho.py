@@ -16,22 +16,18 @@ from sklearn.metrics import rand_score
 
 def desempenho_iris() -> None:
     df = fetch_openml(name='iris', version=1, parser='auto')
-    kmedias = KMedias(3)
-    kmedias.fit(df.data.values)
+    soma_rand_score = 0
+    soma_adjusted_rand_score = 0
+    for _ in range(30):
+        kmedias = KMedias(3)
+        kmedias.fit(df.data.values)
+        kmeans = KMeans(n_clusters=3, n_init='auto', init='random')
+        kmeans.fit(df.data.values)
+        soma_rand_score += rand_score(kmeans.labels_, kmedias.labels)
+        soma_adjusted_rand_score +=  adjusted_rand_score(kmeans.labels_, kmedias.labels)
 
-    #print(df.data.values)
-    #for centroide in kmedias.clusters.keys():
-        
-        #print("---------", centroide, "--------")
-        #for valores in kmedias.clusters[centroide]:
-        #    print(valores)
-
-    kmeans = KMeans(n_clusters=3, n_init='auto')
-    kmeans.fit(df.data.values)
-
-    #print(rand_score(kmeans.labels_, kmedias.labels))
-    #print(adjusted_rand_score(kmeans.labels_, kmedias.labels))
-    print(kmeans.labels_, kmedias.labels)
+    print(f'Media da rand score = {soma_rand_score/30}')
+    print(f'Media da rand score = {soma_adjusted_rand_score/30}')
 
 def main():
     desempenho_iris()
@@ -39,3 +35,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+adjusted_rand_score
+adjusted_rand_score
+adjusted_rand_score
