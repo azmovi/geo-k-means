@@ -58,6 +58,9 @@ class KMeans:
         """
         self.numero_clusters = numero_clusters
         self.maximo_iteracoes = maximo_iteracoes
+        self.centroides = list()
+        self.clusters = dict()
+        self.labels = list()
 
     def update_clusters(
         self, data_x: list[list[float]], centroides: list[list[float]]
@@ -150,6 +153,24 @@ class KMeans:
 
         return novos_centroides
 
+    def rotulo(self) -> True:
+        """
+        Funçao Responsavel por criar os labels após a clusterização
+
+        Examples:
+            >>> kmeans = KMeans(2)
+            >>> clusters = {(3, 4): [[3, 3], [6, 4], [3, 5]], (8, 8): [[8, 7], [9, 8],[10, 9]]}
+            >>> kmeans.rotulo()
+            True
+        """
+        index = 0
+        for key in self.clusters.keys():
+            for value in self.clusters[key]:
+                self.labels.append(index)
+            index += 1
+
+        return True
+
     def fit(self, data: list[list[float]]) -> bool:
         """
         Executa o algoritmo KMeans para clusterização dos dados.
@@ -181,6 +202,7 @@ class KMeans:
                 if np.array_equal(np.array(novos_centroides), centroides):
                     self.centroides = centroides
                     self.clusters = clusters
+                    self.rotulo()
                     return True
 
                 centroides = novos_centroides
