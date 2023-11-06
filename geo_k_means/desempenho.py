@@ -26,8 +26,8 @@ def desempenho_iris() -> None:
         soma_rand_score += rand_score(kmeans.labels_, kmedias.labels)
         soma_adjusted_rand_score +=  adjusted_rand_score(kmeans.labels_, kmedias.labels)
 
-    print(f'Media da rand score = {soma_rand_score/30}')
-    print(f'Media da rand score = {soma_adjusted_rand_score/30}')
+    print(f'Media do rand score = {soma_rand_score/30}')
+    print(f'Media do rand score ajustado = {soma_adjusted_rand_score/30}')
 
 def main():
     desempenho_iris()
@@ -35,8 +35,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-adjusted_rand_score
-adjusted_rand_score
-adjusted_rand_score
