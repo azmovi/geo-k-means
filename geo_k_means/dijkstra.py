@@ -8,6 +8,7 @@ class Grafo:
 
         Parameters:
             size: inteiro que representa o tamanho da matriz (n x n)
+
         Examples:
             >>> grafo = Grafo(10)
         """
@@ -17,14 +18,18 @@ class Grafo:
 
     def adiciona_aresta(self, linha, coluna, distancia) -> bool:
         """
-        Adiciona uma aresta no grafo não direcionado dado dois vértices e a distancia entre eles
+        Adiciona uma aresta no grafo não direcionado dado dois vértices e a
+        distancia entre eles
 
         Parameters:
             linha: o valor do primeiro vértice
             coluna: o valor do segundo vértice
             distancia: a distancia entre os dois vértices
+
         Returns:
-            Retorno de um booleano caso a adição ocorra de forma correta ou não.
+            Retorno de um booleano caso a adição ocorra de forma correta ou
+            não.
+
         Examples:
             >>> grafo = Grafo(10)
             >>> grafo.adiciona_aresta(2, 6, 5)
@@ -47,13 +52,16 @@ class Grafo:
 
 def dijsktra(grafo: Grafo, inicio: int) -> dict[int, int]:
     """
-    Encontra os caminhos mínimos possíveis para os vértices com distancia positiva de um dado grafo.
+    Encontra os caminhos mínimos possíveis para os vértices com distancia
+    positiva de um dado grafo.
 
     Parameters:
         grafo: Uma instancia da classe Grafo
         inicio: O vértice que será a referencia principal de distancia
+
     Returns:
         Um dicionario com a distancia minima de um determinado vértice
+
     Examples:
         >>> grafo = Grafo(5)
         >>> grafo.adiciona_aresta(0, 4, 20)
