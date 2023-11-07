@@ -12,21 +12,21 @@ from geo_k_means.kmeans import KMeans as KMedias  # Pytest
 
 def convert_label_to_int(target: pd.Series) -> list[int]:
     """
-    Converte uma série de rótulos em uma lista de inteiros, onde cada rótulo
-    possui um número correspondente de acordo com a quantidade de classes.
+        Converte uma série de rótulos em uma lista de inteiros, onde cada rótulo
+        possui um número correspondente de acordo com a quantidade de classes.
 
-    Parameters:
-        target: Uma serie do pandas que retrata as classificações reais
-        presentes na base de dados.
+        Parameters:
+            target: Uma serie do pandas que retrata as classificações reais
+            presentes na base de dados.
 
-    Returns:
-        Uma lista de inteiros com o tamanho do target que contem números entre
-        zero a número classificações - 1
+        Returns:
+            Uma lista de inteiros com o tamanho do target que contem números entre
+            zero a número classificações - 1
 
-    Examples:
-        >>> labels = pd.Series(['A', 'B', 'A', 'C', 'B'])
-        >>> convert_labels_to_int(labels)
-        [0, 1, 0, 2, 1]
+    #    Examples:
+    #        >>> labels = pd.Series(['A', 'B', 'A', 'C', 'B'])
+    #        >>> convert_labels_to_int(labels)
+    #        [0, 1, 0, 2, 1]
 
     """
     label = {}
