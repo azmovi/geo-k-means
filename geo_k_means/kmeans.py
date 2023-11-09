@@ -30,7 +30,6 @@ def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
         ValueError: Os pontos devem ter a mesma dimensão.
     """
     if len(ponto1) != len(ponto2):
-        print(ponto1)
         raise ValueError('Os pontos devem ter a mesma dimensão.')
 
     distance = sum((x - y) ** 2 for x, y in zip(ponto1, ponto2)) ** 0.5
