@@ -1,9 +1,9 @@
 """import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 
-from geo_k_means.kmeans import KMeans  # usando o taskipy
+# from geo_k_means.kmeans import KMeans  # usando o taskipy
 
-# from kmeans import KMeans #rodando o codigo normalmente
+from kmeans import KMeans #rodando o codigo normalmente
 
 
 def duas_dimensoes():
@@ -37,4 +37,5 @@ def duas_dimensoes():
     plt.show()
 
 
-duas_dimensoes()"""
+duas_dimensoes()
+"""
