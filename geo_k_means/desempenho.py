@@ -1,16 +1,15 @@
 from time import perf_counter
 
-import numpy as np
 import pandas as pd
+from kmeans import KMeans as KMedias  # Execução Padrão
 
 # Importações de métricas no uso no algoritmo
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
+from sklearn.datasets._openml import OpenMLError
 
 # from geo_k_means.kmeans import KMeans as KMedias  # Pytest
-
-from kmeans import KMeans as KMedias  # Execução Padrão
 
 
 METRICAS = {
@@ -25,11 +24,11 @@ METRICAS = {
     'normalized_mutual_info_score': metrics.normalized_mutual_info_score,
 }
 
+
 OPENML_DATASETS = [
     'iris',
-    'amazon-commer-reviews',
-    'semion',
-    'mfeat-pixel',
+    'amazon-commerce-reviews',
+    'semeion',
     'micro-mass',
     'monks-problems-1',
     'breast-tissue',
@@ -92,16 +91,13 @@ def sklearn_parametrizer(
         start = perf_counter()
         for _ in range(n_iter):
             kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
-            kmeans.fit(data.values)
+            kmeans.fit(data.map(int).values)
             soma_da_metrica += dict_de_metricas[key](labels, kmeans.labels_)
 
         end = perf_counter()
         duration = end - start
 
-        dict_dos_resultados[key] = [
-            round(soma_da_metrica / n_iter, 3),
-            round(duration, 3),
-        ]
+        dict_dos_resultados[key] = [soma_da_metrica / n_iter, duration, 3]
 
     return dict_dos_resultados
 
@@ -148,7 +144,7 @@ def kmedias_parametrizer(
         start = perf_counter()
         for _ in range(n_iter):
             kmedias = KMedias(n_class)
-            kmedias.fit(data.values)
+            kmedias.fit(data.map(int).values)
             soma_da_metrica += dict_de_metricas[key](labels, kmedias.labels)
 
         end = perf_counter()
@@ -200,8 +196,8 @@ def convert_label_to_int(
 
 def cria_data_frame(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
     """
-    Cria um DataFrame utilizando a biblioteca pandas, com colunas para métricas pré-definidas
-    e seus respectivos tempos de execução.
+    Cria um DataFrame utilizando a biblioteca pandas, com colunas para métricas
+    pré-definidas e seus respectivos tempos de execução.
 
     Parameters:
         dict_de_metricas: Um dicionário onde as chaves são os nomes das
@@ -218,9 +214,7 @@ def cria_data_frame(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
         Columns: [completeness_score, Tempo 1]
         Index: []
     """
-
-    colunas = {}
-    colunas = pd.DataFrame(colunas)
+    colunas = pd.DataFrame({}, columns=['Nome'])
 
     for index, key in enumerate(dict_de_metricas.keys(), start=1):
         colunas[key] = None
@@ -229,50 +223,94 @@ def cria_data_frame(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
     return colunas
 
 
-def formata_resultados(
-    sklearn_resultados: dict[str, list[float]],
-    kmedias_resultados: dict[str, list[float]],
-    data_frame: pd.DataFrame,
-) -> None:
+def formata_resultado_de_uma_metrica(
+    dataframe: pd.DataFrame,
+    nome_da_metrica: str,
+    dict_de_metricas: dict[str, callable],
+    sklearn_resultados_de_uma_metrica: dict[str, list[float]],
+    kmedias_resultados_de_uma_metrica: dict[str, list[float]],
+) -> pd.DataFrame:
 
-    for index, chave in enumerate(
-        zip(sklearn_resultados, kmedias_resultados), start=1
-    ):
-        desempenho1 = sklearn_resultados[chave][0]
-        desempenho2 = kmedias_resultados[chave][0]
+    linha_dataframe = {'Nome': nome_da_metrica}
 
-        tempo1 = sklearn_resultados[chave][1]
-        tempo2 = kmedias_resultados[chave][1]
+    for index, chave in enumerate(kmedias_resultados_de_uma_metrica, start=1):
 
-        razao_acertos = desempenho1 / desempenho2
-        razao_tempo = tempo1 / tempo2
+        desempenho_km = kmedias_resultados_de_uma_metrica[chave][0]
+        desempenho_sk = sklearn_resultados_de_uma_metrica[chave][0]
 
-        linha_dataframe[chave1] = razao_acertos
-        linha_dataframe[f'Tempo {index}']
-        df = df.append(nova_linha, ignore_index=True)
+        tempo_km = kmedias_resultados_de_uma_metrica[chave][1]
+        tempo_sk = sklearn_resultados_de_uma_metrica[chave][1]
 
-def executa_datasets() -> None:
-    df = fetch_openml(name='iris', version=1, parser='auto')
-    n_class = len(df['target'].unique())
-    lista_de_classes = df['target'].unique().categories
+        razao_acertos = round(desempenho_km / desempenho_sk, 3)
+        razao_tempo = round(tempo_km / tempo_sk, 3)
 
-    labels = convert_label_to_int(df['target'], n_class, lista_de_classes)
+        linha_dataframe[chave] = razao_acertos
+        linha_dataframe[f'Tempo {index}'] = razao_tempo
 
-    sklearn_resultados = sklearn_parametrizer(
-        df['data'], labels, n_class, METRICAS, 1
-    )
+    temporario = pd.DataFrame(linha_dataframe, index=[0], dtype='object')
 
-    kmedias_resultados = kmedias_parametrizer(
-        df['data'], labels, n_class, METRICAS, 1
-    )
+    dataframe = pd.concat([dataframe, temporario], ignore_index=True)
 
-    df = cria_data_frame(METRICAS)
-    print(df)
-    #formata_resultados(df, sklearn_resultados, kmedias_resultados)
+    return dataframe
+
+
+def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
+
+    dataframe = cria_data_frame(METRICAS)
+
+    for nome_dataset in lista_de_datasets:
+
+        version = 1
+        df = None
+
+        while version <= 5:
+            try:
+                df = fetch_openml(
+                        name=nome_dataset,
+                        version=version,
+                        parser='auto'
+                )
+                break
+
+            except OpenMLError:
+                version += 1
+
+        if version > 5:
+            print("Não achei a base de dados")
+
+        if df is not None:
+            n_class = len(df['target'].unique())
+            lista_de_classes = df['target'].unique().categories
+            n_iter = 1
+
+            labels = convert_label_to_int(
+                df['target'], n_class, lista_de_classes
+            )
+
+            sklearn_resultados_de_uma_metrica = sklearn_parametrizer(
+                df['data'], labels, n_class, METRICAS, n_iter
+            )
+
+            kmedias_resultados_de_uma_metrica = kmedias_parametrizer(
+                df['data'], labels, n_class, METRICAS, n_iter
+            )
+
+            dataframe = formata_resultado_de_uma_metrica(
+                dataframe,
+                nome_dataset,
+                METRICAS,
+                sklearn_resultados_de_uma_metrica,
+                kmedias_resultados_de_uma_metrica,
+            )
+
+    return dataframe
 
 
 def main():
-    executa_datasets()
+    data_sets = ['iris', 'balance-scale']
+    df = executa_datasets(data_sets)
+
+    return df.to_csv('docs/test.csv', index=False)
 
 
 if __name__ == '__main__':
