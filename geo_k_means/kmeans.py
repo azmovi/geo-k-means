@@ -1,223 +1,146 @@
-import random
-
 import numpy as np
+from numba import jit
 
 
-def euclidean_distance(ponto1: list[float], ponto2: list[float]) -> float:
+def tipo_um_dict(centroides: np.ndarray):
     """
-    Calcula a distância entre dois pontos no espaço euclidiano n-dimensional.
+    Cria uma array do numpy baseado em um centroide interligado com os
+    pontos que fazem parte desse cluster
 
     Parameters:
-        ponto1: lista de coordenadas do primeiro ponto
-        ponto2: lista de coordenadas do segundo ponto
-
-    Returns:
-        Um float que represeta a distância entre os dois pontos.
-
-    Raises:
-        ValueError: Se os pontos tiverem dimensões diferentes.
+        centoides: um array com os centroides que foram escolhidos
+        previamente
 
     Examples:
-        >>> euclidean_distance([2, 1], [6, 4])
-        5.0
+        >>> array = np.array([[2, 5, 9], [10, 10, 6]])
+        >>> tipo_um_dict(array)
+        array([([ 2.,  5.,  9.], ...)
 
-        >>> euclidean_distance([-2, 0, 1], [0, 2, 2])
-        3.0
-
-        >>> euclidean_distance([2, 1], [6, 4, 3])
-        Traceback (most recent call last):
-        ...
-        ValueError: Os pontos devem ter a mesma dimensão.
     """
-    if len(ponto1) != len(ponto2):
-        raise ValueError('Os pontos devem ter a mesma dimensão.')
 
-    distance = sum((x - y) ** 2 for x, y in zip(ponto1, ponto2)) ** 0.5
+    tipo = [('centroide', float, centroides.shape[1]), ('pontos', list)]
 
-    return distance
+    clusters = np.array(
+        [(centroide, []) for centroide in centroides], dtype=tipo
+    )
+
+    return clusters
 
 
-class KMeans:
-    def __init__(
-        self, numero_clusters: int, maximo_iteracoes: int = 100
-    ) -> None:
-        """
-        Inicialização de um objeto kmean
+def update_clusters(
+    data_x: np.ndarray, centroides: np.ndarray
+) -> np.ndarray:
+    """
+    Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que
+    apresentam a menor distância a partir da base de dados.
 
-        Paramenters:
-            numero_clusters: Um numero que define a quantidade de centroides,
-            usado para calcular o teorema do cotovelo
+    Parameters:
+        data_x: Uma lista de pontos, onde cada ponto é uma lista de
+        coordenadas.
 
-            maximo_interacoes: O ultimo criterio de parada do algortimo, ele é
-            passado com o valor 100 de padrão.
+        centroides: Uma lista de centroides, onde cada centróide é uma
+        lista de coordenadas.
 
-        Examples:
-            kmean = Kmeans(3)
+    Returns:
+        Um dicionário onde as chaves são os centroides e os valores são as
+        listas dos melhores pontos associados a cada centróide.
 
-        """
-        self.numero_clusters = numero_clusters
-        self.maximo_iteracoes = maximo_iteracoes
-        self.centroides = list()
-        self.clusters = dict()
-        self.labels = list()
+    Examples:
+        >>> test1 = KMeans(2)
+        >>> data1_x = np.array(
+        ... [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7]]
+        ... )
+        >>> centroides1 = np.array([[3, 4], [8, 8]])
+        >>> test1.update_clusters(data1_x, centroides1)
+        array([([3., 4.],...)
+    """
+    clusters = tipo_um_dict(centroides)
 
-    def update_clusters(
-        self, data_x: list[list[float]], centroides: list[list[float]]
-    ) -> dict[tuple[float], list[list[float]]]:
-        """
-        Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que
-        apresentam a menor distância a partir da base de dados.
+    for index, ponto in enumerate(data_x):
+        distancias = np.linalg.norm(centroides - ponto, axis=1)
+        indice_menor_distancia = np.argmin(distancias)
+        clusters[indice_menor_distancia]['pontos'].append(ponto)
 
-        Parameters:
-            data_x: Uma lista de pontos, onde cada ponto é uma lista de
-            coordenadas.
+    return clusters
 
-            centroides: Uma lista de centroides, onde cada centróide é uma
-            lista de coordenadas.
 
-        Returns:
-            Um dicionário onde as chaves são os centroides e os valores são as
-            listas dos melhores pontos associados a cada centróide.
+def update_centroides(clusters: np.ndarray, centroides: np.ndarray) -> None:
+    """
+    Atualiza os valores dos centróides com base na média das coordenadas
+    dos pontos em cada cluster.
 
-        Examples:
-            >>> test1 = KMeans(2)
-            >>> data1_x = [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7]]
-            >>> centroides1 = [[3, 4], [8, 8]]
-            >>> test1.update_clusters(data1_x, centroides1)
-            {(3, 4): [[2, 1], [6, 4], ...], (8, 8): [[8, 7], [9, 8], ...]}
-            >>> test2 = KMeans(3)
-            >>> data2_x = [
-            ... [0, 1, 0], [2, 1, 0],
-            ... [6, 7, 8], [9, 10, 11]
-            ... ]
-            >>> centroides2 = [[0, 0, 0], [8, 8, 8]]
-            >>> test2.update_clusters(data2_x, centroides2)
-            {(0, 0, 0): [[0, 1, 0], ...], (8, 8, 8): [[6, 7, 8], ...]}
-        """
-        clusters = {}
-        for centroide in centroides:
-            clusters[tuple(centroide)] = []
+    Parameters:
+        clusters: Um dicionário onde as chaves são as coordenadas dos
+        centróides e os valores são listas de pontos atribuídos a cada
+        centróide.
 
-        for x in data_x:
-            menor_distancia = float('inf')
-            melhor_centroide = None
+    Returns:
+        Uma lista de novos centróides, onde cada centróide é uma lista de
+        coordenadas recalculadas.
 
-            for centroide in centroides:
-                distancia = euclidean_distance(x, centroide)
-                if distancia < menor_distancia:
-                    menor_distancia = distancia
-                    melhor_centroide = centroide
+    Examples:
+        >>> kmeans = KMeans(2)
+        >>> clusters = {
+        ... (3, 4): [[3, 3], [6, 4], [3, 5]],
+        ... (8, 8): [[8, 7], [9, 8],[10, 9]]
+        ... }
+        >>> kmeans.update_centroides(clusters)
+        [[4.0, 4.0], [9.0, 8.0]]
+        >>> clusters = {
+        ... (2, 3, 1): [[0, 0, 0], [-1, -1, -1], [1, 2, 3], [3, 2, 1]],
+        ... (8, 8, 8): [[5, 6, 7], [9, 8, 10]]
+        ... }
+        >>> kmeans.update_centroides(clusters)
+        [[0.75, 0.75, 0.75], [7.0, 7.0, 8.5]]
+    """
 
-            if melhor_centroide is not None:
-                clusters[tuple(melhor_centroide)].append(x)
+    for index, lista_de_pontos in enumerate(clusters['pontos']):
+        media = np.mean(lista_de_pontos, axis=0)
+        centroides[index] = media
 
-        return clusters
+    return centroides
 
-    def update_centroides(
-        self, clusters: dict[tuple[float], list[list[float]]]
-    ) -> list[list[float]]:
-        """
-        Atualiza os valores dos centróides com base na média das coordenadas
-        dos pontos em cada cluster.
 
-        Parameters:
-            clusters: Um dicionário onde as chaves são as coordenadas dos
-            centróides e os valores são listas de pontos atribuídos a cada
-            centróide.
+def rotula_os_dados(quantidade_de_linhas: int, clusters: np.ndarray):
+    rotulos = np.zeros(quantidade_de_linhas)
 
-        Returns:
-            Uma lista de novos centróides, onde cada centróide é uma lista de
-            coordenadas recalculadas.
+    for valor, (_, valores) in enumerate(clusters):
+        indices = np.arange(len(valores))
+        rotulos[indices] = valor
 
-        Examples:
-            >>> kmeans = KMeans(2)
-            >>> clusters = {
-            ... (3, 4): [[3, 3], [6, 4], [3, 5]],
-            ... (8, 8): [[8, 7], [9, 8],[10, 9]]
-            ... }
-            >>> kmeans.update_centroides(clusters)
-            [[4.0, 4.0], [9.0, 8.0]]
-            >>> clusters = {
-            ... (2, 3, 1): [[0, 0, 0], [-1, -1, -1], [1, 2, 3], [3, 2, 1]],
-            ... (8, 8, 8): [[5, 6, 7], [9, 8, 10]]
-            ... }
-            >>> kmeans.update_centroides(clusters)
-            [[0.75, 0.75, 0.75], [7.0, 7.0, 8.5]]
-        """
-        novos_centroides = []
+    return rotulos
 
-        for _, pontos in clusters.items():
-            novo_centroide = []
-            num_pontos = len(pontos)
 
-            for dimen in range(len(pontos[0])):
-                soma = 0
-                for ponto in pontos:
-                    soma += ponto[dimen]
+def fit(
+        data: np.ndarray[float],
+        n_class: int,
+        n_iter: int = 300
+) -> np.ndarray:
+    """
+    Executa o algoritmo KMeans para clusterização dos dados.
 
-                media = soma / num_pontos
-                novo_centroide.append(media)
-            novos_centroides.append(novo_centroide)
+    Parameters:
+        data: Um dataset que será treinado.
 
-        return novos_centroides
+    Returns:
+        bool: True se a convergência foi alcançada, False caso contrário.
 
-    def rotulo(self) -> bool:
-        """
-        Funçao Responsavel por criar os labels após a clusterização
+    Examples:
+    """
 
-        Examples:
-            >>> kmeans = KMeans(2)
-            >>> cluster = {
-            ... (3, 4): [[3, 3], [6, 4], [3, 5]],
-            ... (8, 8): [[8, 7], [9, 8],[10, 9]]
-            ... }
-            >>> kmeans.rotulo()
-            True
-        """
-        index = self.numero_clusters - 1
-        for key in self.clusters.keys():
-            for value in self.clusters[key]:
-                self.labels.append(index)
-            index -= 1
+    if len(data) != 0:
+        centroides = data[
+                np.random.choice(data.shape[0], n_class, replace=False)
+        ]
 
-        return True
+        for _ in range(n_iter):
+            centroides_antigo = centroides
+            clusters = update_clusters(data, centroides)
+            centroides = update_centroides(clusters, centroides)
 
-    def fit(self, data: list[list[float]]) -> bool:
-        """
-        Executa o algoritmo KMeans para clusterização dos dados.
+            if np.array_equal(centroides, centroides_antigo):
+                rotulo = rotula_os_dados(data.shape[0], clusters)
+                return clusters, centroides, rotulo
 
-        Parameters:
-            data (list[list[float]]): Uma lista contendo os pontos de dados a
-            serem clusterizados.
-
-        Returns:
-            bool: True se a convergência foi alcançada, False caso contrário.
-
-        Examples:
-            >>> test = KMeans(2)
-            >>> data = [
-            ... [2, 1], [6, 4], [3, 5], [8, 7], [9, 8],
-            ... [10, 7], [1, 2], [4, 3], [5, 5]
-            ... ]
-            >>> test.fit(data)
-            True
-            >>> data2 = []
-            >>> test.fit(data2)
-            False
-        """
-        if len(data) != 0:
-            centroides = random.sample(list(data), self.numero_clusters)
-
-            for _ in range(self.maximo_iteracoes):
-                clusters = self.update_clusters(data, centroides)
-
-                novos_centroides = self.update_centroides(clusters)
-
-                if np.array_equal(np.array(novos_centroides), centroides):
-                    self.centroides = centroides
-                    self.clusters = clusters
-                    self.rotulo()
-                    return True
-
-                centroides = novos_centroides
-        return False
+        rotulo = rotula_os_dados(data.shape[0], clusters)
+        return clusters, centroides, rotulo
