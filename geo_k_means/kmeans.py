@@ -1,11 +1,11 @@
 import numpy as np
-from numba import jit
+from numba import jit, float64
 
 
 def update_clusters(
     dataset: np.ndarray,
-    lista_de_centroides: np.ndarray,
-) -> np.ndarray:
+    centroides: np.ndarray,
+) -> list(list[float]):
     """
     Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que
     apresentam a menor distância a partir da base de dados.
@@ -30,16 +30,14 @@ def update_clusters(
         >>> test1.update_clusters(data1_x, centroides1)
         array([([3., 4.],...)
     """
-    clusters = [[] for _ in range(len(lista_de_centroides))]
+    clusters = [[] for _ in range(len(centroides))]
+    for ponto in dataset:
+        distancias = np.empty(len(centroides), dtype=np.float64)
+        for i in range(len(centroides)):
+            distancias[i] = np.linalg.norm(ponto - centroides[i])
 
-    for index, ponto in enumerate(dataset):
-        distancias = [
-            np.linalg.norm(ponto - centroide)
-            for centroide in lista_de_centroides
-        ]
         indice = np.argmin(distancias)
         clusters[indice].append(ponto)
-
     return clusters
 
 
@@ -80,16 +78,6 @@ def update_centroides(
         lista_de_centroides[index] = media
 
     return lista_de_centroides
-
-
-@jit(nopython=True, parallel=True)
-def rotula_os_dados(data: np.ndarray, clusters: list[list[float]]) -> np.ndarray:
-    """ """
-    labels = np.zeros()
-    for i, cluster in enumerate(clusters):
-        labels[[data.tolist().index(point.tolist()) for point in cluster]] = i
-
-    return labels
 
 
 def fit(
