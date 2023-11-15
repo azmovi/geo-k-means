@@ -2,44 +2,9 @@ import numpy as np
 from numba import jit
 
 
-def distancia_euclidiana(ponto1: np.ndarray, ponto2: np.ndarray) -> float:
-    """
-    Calcula a distância entre dois pontos no espaço euclidiano n-dimensional.
-
-    Parameters:
-        ponto1: lista de coordenadas do primeiro ponto
-        ponto2: lista de coordenadas do segundo ponto
-
-    Returns:
-        Um float que represeta a distância entre os dois pontos.
-
-    Raises:
-        ValueError: Se os pontos tiverem dimensões diferentes.
-
-    Examples:
-        >>> euclidean_distance([2, 1], [6, 4])
-        5.0
-
-        >>> euclidean_distance([-2, 0, 1], [0, 2, 2])
-        3.0
-
-        >>> euclidean_distance([2, 1], [6, 4, 3])
-        Traceback (most recent call last):
-        ...
-        ValueError: Os pontos devem ter a mesma dimensão.
-    """
-    if len(ponto1) != len(ponto2):
-        raise ValueError('Os pontos devem ter a mesma dimensão.')
-
-    distance = np.linalg.norm(ponto1 - ponto2)
-
-    return distance
-
-
-#@jit(nopython=True)
 def update_clusters(
-        dataset: np.ndarray,
-        lista_de_centroides: np.ndarray,
+    dataset: np.ndarray,
+    lista_de_centroides: np.ndarray,
 ) -> np.ndarray:
     """
     Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que
@@ -65,23 +30,21 @@ def update_clusters(
         >>> test1.update_clusters(data1_x, centroides1)
         array([([3., 4.],...)
     """
-    clusters = [[]] * len(lista_de_centroides)
+    clusters = [[] for _ in range(len(lista_de_centroides))]
 
     for index, ponto in enumerate(dataset):
         distancias = [
-            distancia_euclidiana(ponto, centroide) for centroide in lista_de_centroides
+            np.linalg.norm(ponto - centroide)
+            for centroide in lista_de_centroides
         ]
         indice = np.argmin(distancias)
-        print(indice)
-        print(clusters[indice])
         clusters[indice].append(ponto)
 
-    return np.array(clusters)
+    return clusters
 
 
 def update_centroides(
-    clusters: np.ndarray,
-    lista_de_centroides: np.ndarray
+    clusters: list[list[float]], lista_de_centroides: np.ndarray
 ) -> np.ndarray:
     """
     Atualiza os valores dos centróides com base na média das coordenadas
@@ -119,24 +82,18 @@ def update_centroides(
     return lista_de_centroides
 
 
-def rotula_os_dados(
-        data: np.ndarray,
-        clusters: np.ndarray
-) -> np.ndarray:
-    """
-
-    """
+@jit(nopython=True, parallel=True)
+def rotula_os_dados(data: np.ndarray, clusters: list[list[float]]) -> np.ndarray:
+    """ """
     labels = np.zeros()
     for i, cluster in enumerate(clusters):
         labels[[data.tolist().index(point.tolist()) for point in cluster]] = i
 
-    return labels 
+    return labels
 
 
 def fit(
-        data: np.ndarray[float],
-        n_class: int,
-        n_iter: int = 100 
+    data: np.ndarray[float], n_class: int, n_iter: int = 100
 ) -> dict[str, list[float]]:
     """
     Executa o algoritmo KMeans para clusterização dos dados.
@@ -149,11 +106,8 @@ def fit(
 
     Examples:
     """
-    centroides = data[
-            np.random.choice(data.shape[0], n_class, replace=False)
-    ]
-    centroides_antigo= np.zeros_like(centroides)
-
+    centroides = data[np.random.choice(data.shape[0], n_class, replace=False)]
+    centroides_antigo = np.zeros_like(centroides)
 
     for _ in range(n_iter):
         clusters = update_clusters(data, centroides)
@@ -164,15 +118,13 @@ def fit(
 
         centroides_antigo = centroides.copy()
 
-
     rotulo = np.zeros(data.shape[0])
     for i, cluster in enumerate(clusters):
         rotulo[[data.tolist().index(point.tolist()) for point in cluster]] = i
 
-
     atributos = {
-            'clusters': clusters,
-            'centroides': centroides,
-            'rotulo': rotulo
+        'clusters': clusters,
+        'centroides': centroides,
+        'rotulo': rotulo,
     }
     return atributos

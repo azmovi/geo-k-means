@@ -17,11 +17,14 @@ def duas_dimensoes():
     centroides = atributos['centroides']
     clusters = atributos['clusters']
     rotulo = atributos['rotulo']
-    for i, (x, y) in enumerate(clusters):
+
+    for i, vetores in enumerate(clusters):
         cor = cores[i]
-        plt.scatter(x, y, color=cor, label=f'Cluster {i+1}')
-    for i , (x, y) in enumerate(centroides):
-        plt.scatter(x, y, color='black', marker='x', s=100, label=f'Centróides {i+1}')
+        for vetor in vetores:
+            plt.scatter(vetor[0], vetor[1], color=cor, label=f'Cluster {i+1}')
+
+    for i, vetor in enumerate(centroides):
+        plt.scatter(vetor[0], vetor[1], color='black', marker='x', s=100, label=f'Centróides {i+1}')
 
     plt.xlabel('Dimensão X')
     plt.ylabel('Dimensão Y')
