@@ -11,19 +11,17 @@ def duas_dimensoes():
         n_samples=300, centers=3, cluster_std=1, random_state=42
     )
 
-    clusters, centroides, rotulo = kmeans.fit(data, 3)
+    atributos = kmeans.fit(data, 3)
 
     cores = ['r', 'g', 'b']
-
-    for i, (centroide, pontos) in enumerate(clusters):
+    centroides = atributos['centroides']
+    clusters = atributos['clusters']
+    rotulo = atributos['rotulo']
+    for i, (x, y) in enumerate(clusters):
         cor = cores[i]
-        pontos = list(zip(*pontos))
-        plt.scatter(*pontos, color=cor, label=f'Cluster {i+1}')
-
-    centroides = list(zip(*centroides))
-    plt.scatter(
-        *centroides, color='black', marker='x', s=100, label='Centróides'
-    )
+        plt.scatter(x, y, color=cor, label=f'Cluster {i+1}')
+    for i , (x, y) in enumerate(centroides):
+        plt.scatter(x, y, color='black', marker='x', s=100, label=f'Centróides {i+1}')
 
     plt.xlabel('Dimensão X')
     plt.ylabel('Dimensão Y')
