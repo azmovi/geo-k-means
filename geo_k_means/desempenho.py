@@ -1,15 +1,17 @@
 from time import perf_counter
 
 import pandas as pd
+import numpy as np
 
 # Importações de métricas no uso no algoritmo
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
+from sklearn.datasets._openml import OpenMLError
 
-# from geo_k_means.kmeans import KMeans as KMedias  # Pytest
+# import geo_k_means.kmeans # pytest
 
-from kmeans import KMeans as KMedias  # Execução Padrão
+import kmeans
 
 
 METRICAS = {
@@ -27,25 +29,65 @@ METRICAS = {
 
 OPENML_DATASETS = [
     'iris',
-    'amazon-commerce-reviews',
-    'semeion',
     'micro-mass',
     'monks-problems-1',
     'breast-tissue',
-    'fri_c2_100_10',
     'datatrive',
-    'fri_c3_250_25',
     'GCM',
     'collins',
-    'pyrim',
     'balance-scale',
     'tr45.wc',
-    'cloud',
     'servo',
     'AP_Breast_Lung',
     'leukemia',
     'AP_Colon_Prostate',
     'AP_Colon_Kidney',
+    'AP_Colon_Kidney',
+    'AP_Breast_Kidney',
+    'AP_Breast_Ovary',
+    'AP_Breast_Colon',
+    'AP_Colon_Prostate',
+    'AP_Breast_Lung',
+    'AP_Endometrium_Breast',
+    'AP_Colon_Omentum',
+    'AP_Breast_Omentum',
+    'AP_Prostate_Kidney',
+    'AP_Omentum_Kidney',
+    'AP_Breast_Prostate',
+    'AP_Uterus_Kidney',
+    'AP_Prostate_Uterus',
+    'AP_Omentum_Lung',
+    'AP_Lung_Uterus',
+    'AP_Ovary_Kidney',
+    'AP_Lung_Kidney',
+    'AP_Colon_Lung',
+    'AP_Endometrium_Colon',
+    'AP_Ovary_Lung',
+    'AP_Endometrium_Kidney',
+    'AP_Colon_Uterus',
+    'leukemia',
+    'tr11.wc',
+    'tr12.wc',
+    'tr45.wc',
+    'tr23.wc',
+    'tr21.wc',
+    'tr31.wc',
+    'hepatitisC',
+    'Ovarian',
+    'SRBCT',
+    'Colon',
+    'servo',
+    'climate-model-simulation-crashes',
+    'anneal',
+    'pasture',
+    'glass',
+    'lowbwt',
+    'kc1-binary',
+    'dermatology',
+    'backache',
+    'lsvt',
+    'thoracic-surgery',
+    'planning-relax'
 ]
 
 
@@ -243,6 +285,11 @@ def formata_resultado_de_uma_metrica(
     return dataframe
 
 
+def preprocess(dataset: np.ndarray):
+    return
+
+
+
 def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
 
     dataframe = cria_data_frame(METRICAS)
@@ -293,10 +340,10 @@ def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
 
 
 def main():
-    nome = ['AP_Colon_Prostate']
-    df = executa_datasets(nome)
-    print(df)
+    #df = executa_datasets(OPENML_DATASETS)
+
     return
+
 
 if __name__ == '__main__':
     main()

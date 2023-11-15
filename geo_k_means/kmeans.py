@@ -6,28 +6,24 @@ def update_clusters(
     centroides: np.ndarray,
 ) -> list(list[float]):
     """
-    Relaciona os clusters aos seus melhores pontos, ou seja, aqueles que
-    apresentam a menor distância a partir da base de dados.
+    Cria uma relação entre um centroide e um vetor do dataset, baseado na norma
+    entre os dois vetores.
 
     Parameters:
-        data_x: Uma lista de pontos, onde cada ponto é uma lista de
-        coordenadas.
+        dataset: Uma lista de centroides, onde cada centroide é um vetor.
 
-        centroides: Uma lista de centroides, onde cada centróide é uma
-        lista de coordenadas.
+        centroides: Uma lista de centroides, onde cada centroide é um vetor.
 
     Returns:
-        Um dicionário onde as chaves são os centroides e os valores são as
-        listas dos melhores pontos associados a cada centróide.
+        Uma lista de listas onde a quantidade de listas sera igual a quantidade
+        de centroides, e dentro das listas terão os vetores que estão mais
+        próximos de um centroide.
 
     Examples:
-        >>> test1 = KMeans(2)
-        >>> data1_x = np.array(
-        ... [[2, 1], [6, 4], [3, 5], [8, 7], [9, 8], [10, 7]]
-        ... )
-        >>> centroides1 = np.array([[3, 4], [8, 8]])
-        >>> test1.update_clusters(data1_x, centroides1)
-        array([([3., 4.],...)
+        >>> data = np.array([4, 1, 2, 10, 4, 5, 2, 1])
+        >>> centroides = np.array([3, 5])
+        >>> update_clusters(data, centroides)
+        [[4, 1, 2, 4, 2, 1], [10, 5]]
     """
     clusters = [[] for _ in range(len(centroides))]
     for ponto in dataset:
@@ -41,57 +37,56 @@ def update_clusters(
 
 
 def update_centroides(
-    clusters: list[list[float]], lista_de_centroides: np.ndarray
+    clusters: list[list[float]], centroides: np.ndarray
 ) -> np.ndarray:
     """
-    Atualiza os valores dos centróides com base na média das coordenadas
-    dos pontos em cada cluster.
+    Atualiza os valores dos centroides com base na média das coordenadas
+    dos vetores presentes em cada clusters.
 
     Parameters:
-        clusters: Um dicionário onde as chaves são as coordenadas dos
-        centróides e os valores são listas de pontos atribuídos a cada
-        centróide.
+        clusters: uma lista de vetores da base de dados.
+        Centroide: uma lista com os centroides.
 
     Returns:
         Uma lista de novos centróides, onde cada centróide é uma lista de
         coordenadas recalculadas.
 
     Examples:
-        >>> kmeans = KMeans(2)
-        >>> clusters = {
-        ... (3, 4): [[3, 3], [6, 4], [3, 5]],
-        ... (8, 8): [[8, 7], [9, 8],[10, 9]]
-        ... }
-        >>> kmeans.update_centroides(clusters)
-        [[4.0, 4.0], [9.0, 8.0]]
-        >>> clusters = {
-        ... (2, 3, 1): [[0, 0, 0], [-1, -1, -1], [1, 2, 3], [3, 2, 1]],
-        ... (8, 8, 8): [[5, 6, 7], [9, 8, 10]]
-        ... }
-        >>> kmeans.update_centroides(clusters)
-        [[0.75, 0.75, 0.75], [7.0, 7.0, 8.5]]
+
+        >>> clusters = [[4, 1, 2, 4, 2, 1], [10, 5]]
+        >>> centroides = np.array([3, 5])
+        >>> update_centroides(clusters, centroides)
+        array([2, 7])
     """
 
     for index, lista_de_pontos in enumerate(clusters):
         media = np.mean(lista_de_pontos, axis=0)
-        lista_de_centroides[index] = media
+        centroides[index] = media
 
-    return lista_de_centroides
+    return centroides
 
 
 def fit(
     data: np.ndarray[float], n_class: int, n_iter: int = 100
 ) -> dict[str, list[float]]:
     """
-    Executa o algoritmo KMeans para clusterização dos dados.
+    Executa o treinamento de classificação atualizando os clusters e centroides
+    com o passar das iterações e no final rotula os dados.
 
     Parameters:
         data: Um dataset que será treinado.
+        n_class: O numero de classes que terá o conjunto de dados.
+        n_iter: A quantidade máxima de iterações que o algoritmo pode fazer.
 
     Returns:
-        bool: True se a convergência foi alcançada, False caso contrário.
+        Retorna um dicionario que contem as chaves: clusters, centroides,
+        rotulo.
 
     Examples:
+        >>> data = np.array([4, 1, 2, 10, 4, 5, 2, 1])
+        >>> fit(data, 2)
+        {'clusters': ...}
+
     """
     centroides = data[np.random.choice(data.shape[0], n_class, replace=False)]
     centroides_antigo = np.zeros_like(centroides)
