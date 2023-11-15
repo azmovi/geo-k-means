@@ -3,7 +3,7 @@ from sklearn.datasets import make_blobs
 
 # from geo_k_means.kmeans import KMeans  # usando o taskipy
 
-from kmeans import KMeans #rodando o codigo normalmente
+import kmeans
 
 
 def duas_dimensoes():
@@ -11,31 +11,25 @@ def duas_dimensoes():
         n_samples=300, centers=3, cluster_std=1, random_state=42
     )
 
-    test = KMeans(numero_clusters=3)
-
-    test.fit(data)
-
-    centroides = test.centroides
-    clusters = test.clusters
+    atributos = kmeans.fit(data, 3)
 
     cores = ['r', 'g', 'b']
+    centroides = atributos['centroides']
+    clusters = atributos['clusters']
+    rotulo = atributos['rotulo']
 
-    for i, (centroide, pontos) in enumerate(clusters.items()):
+    for i, vetores in enumerate(clusters):
         cor = cores[i]
-        pontos = list(zip(*pontos))
-        plt.scatter(*pontos, color=cor, label=f'Cluster {i+1}')
+        for vetor in vetores:
+            plt.scatter(vetor[0], vetor[1], color=cor, label=f'Cluster {i+1}')
 
-    centroides = list(zip(*centroides))
-    plt.scatter(
-        *centroides, color='black', marker='x', s=100, label='Centróides'
-    )
+    for i, vetor in enumerate(centroides):
+        plt.scatter(vetor[0], vetor[1], color='black', marker='x', s=100, label=f'Centróides {i+1}')
 
     plt.xlabel('Dimensão X')
     plt.ylabel('Dimensão Y')
     plt.title('KMeans Clustering')
-    plt.legend()
     plt.show()
 
 
-duas_dimensoes()
-"""
+duas_dimensoes()"""

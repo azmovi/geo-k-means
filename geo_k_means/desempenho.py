@@ -1,15 +1,15 @@
 from time import perf_counter
 
 import pandas as pd
-from kmeans import KMeans as KMedias  # Execução Padrão
 
 # Importações de métricas no uso no algoritmo
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
-from sklearn.datasets._openml import OpenMLError
 
 # from geo_k_means.kmeans import KMeans as KMedias  # Pytest
+
+from kmeans import KMeans as KMedias  # Execução Padrão
 
 
 METRICAS = {
@@ -125,27 +125,16 @@ def kmedias_parametrizer(
     Returns:
         Um dicionário contendo o desempenho de cada métrica e o tempo de
         execução correspondente.
-
-    Examples:
-        >>> df = fetch_openml(name='iris', version=1, parser='auto')
-        >>> n_class = len(df['target'].unique())
-        >>> lista_de_classes = df['target'].unique().categories
-        >>> labels = convert_label_to_int(
-        ... df['target'], n_class, lista_de_classes
-        ... )
-        >>> kmedias_parametrizer(df['data'], labels, 3, METRICAS)
-        {'completeness_score': [...], ...}
     """
 
     dict_dos_resultados = {}
-
     for key in dict_de_metricas.keys():
         soma_da_metrica = 0
         start = perf_counter()
         for _ in range(n_iter):
             kmedias = KMedias(n_class)
-            kmedias.fit(data.map(int).values)
-            soma_da_metrica += dict_de_metricas[key](labels, kmedias.labels)
+            kmedias.fit(data.map(float).values)
+            soma_da_metrica += dict_de_metricas[key](labels, kmedias.rotulo)
 
         end = perf_counter()
         duration = end - start
@@ -211,7 +200,7 @@ def cria_data_frame(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
         >>> metricas = {'completeness_score': metrics.completeness_score}
         >>> cria_data_frame(metricas)
         Empty DataFrame
-        Columns: [completeness_score, Tempo 1]
+        Columns: [Nome, completeness_score, Tempo 1]
         Index: []
     """
     colunas = pd.DataFrame({}, columns=['Nome'])
@@ -266,9 +255,7 @@ def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
         while version <= 5:
             try:
                 df = fetch_openml(
-                        name=nome_dataset,
-                        version=version,
-                        parser='auto'
+                    name=nome_dataset, version=version, parser='auto'
                 )
                 break
 
@@ -276,13 +263,12 @@ def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
                 version += 1
 
         if version > 5:
-            print("Não achei a base de dados")
+            print('Não achei a base de dados')
 
         if df is not None:
             n_class = len(df['target'].unique())
             lista_de_classes = df['target'].unique().categories
             n_iter = 1
-
             labels = convert_label_to_int(
                 df['target'], n_class, lista_de_classes
             )
@@ -307,11 +293,10 @@ def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
 
 
 def main():
-    data_sets = ['iris', 'balance-scale']
-    df = executa_datasets(data_sets)
-
-    return df.to_csv('docs/test.csv', index=False)
-
+    nome = ['AP_Colon_Prostate']
+    df = executa_datasets(nome)
+    print(df)
+    return
 
 if __name__ == '__main__':
     main()
