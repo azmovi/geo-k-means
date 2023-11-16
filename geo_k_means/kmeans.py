@@ -26,6 +26,7 @@ def update_clusters(
         [[4, 1, 2, 4, 2, 1], [10, 5]]
     """
     clusters = [[] for _ in range(len(centroides))]
+
     for ponto in dataset:
         distancias = np.empty(len(centroides), dtype=np.float64)
         for i in range(len(centroides)):
@@ -33,6 +34,7 @@ def update_clusters(
 
         indice = np.argmin(distancias)
         clusters[indice].append(ponto)
+
     return clusters
 
 
@@ -60,7 +62,7 @@ def update_centroides(
     """
 
     for index, lista_de_pontos in enumerate(clusters):
-        media = np.mean(lista_de_pontos, axis=0)
+        media = np.nanmean(lista_de_pontos, axis=0)
         centroides[index] = media
 
     return centroides

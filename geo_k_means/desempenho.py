@@ -32,22 +32,16 @@ OPENML_DATASETS = [
     'micro-mass',
     'monks-problems-1',
     'breast-tissue',
-    'datatrive',
     'GCM',
     'collins',
     'balance-scale',
-    'tr45.wc',
     'servo',
     'AP_Breast_Lung',
-    'leukemia',
-    'AP_Colon_Prostate',
-    'AP_Colon_Kidney',
     'AP_Colon_Kidney',
     'AP_Breast_Kidney',
     'AP_Breast_Ovary',
     'AP_Breast_Colon',
     'AP_Colon_Prostate',
-    'AP_Breast_Lung',
     'AP_Endometrium_Breast',
     'AP_Colon_Omentum',
     'AP_Breast_Omentum',
@@ -66,17 +60,10 @@ OPENML_DATASETS = [
     'AP_Endometrium_Kidney',
     'AP_Colon_Uterus',
     'leukemia',
-    'tr11.wc',
-    'tr12.wc',
-    'tr45.wc',
-    'tr23.wc',
-    'tr21.wc',
-    'tr31.wc',
     'hepatitisC',
     'Ovarian',
     'SRBCT',
     'Colon',
-    'servo',
     'climate-model-simulation-crashes',
     'anneal',
     'pasture',
@@ -87,7 +74,7 @@ OPENML_DATASETS = [
     'backache',
     'lsvt',
     'thoracic-surgery',
-    'planning-relax'
+    'planning-relax',
 ]
 
 
@@ -119,7 +106,7 @@ def sklearn_parametrizer(
         >>> df = fetch_openml(name='iris', version=1, parser='auto')
         >>> n_class = len(df['target'].unique())
         >>> lista_de_classes = df['target'].unique().categories
-        >>> labels = convert_label_to_int(
+        >>> labels = make_label(
         ... df['target'], n_class, lista_de_classes
         ... )
         >>> sklearn_parametrizer(df['data'], labels, 3, METRICAS)
@@ -133,13 +120,16 @@ def sklearn_parametrizer(
         start = perf_counter()
         for _ in range(n_iter):
             kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
-            kmeans.fit(data.map(int).values)
+            kmeans.fit(data.values)
             soma_da_metrica += dict_de_metricas[key](labels, kmeans.labels_)
 
         end = perf_counter()
         duration = end - start
 
-        dict_dos_resultados[key] = [soma_da_metrica / n_iter, duration, 3]
+        dict_dos_resultados[key] = [
+            round(soma_da_metrica / n_iter, 3),
+            round(duration, 3)
+        ]
 
     return dict_dos_resultados
 
@@ -174,9 +164,10 @@ def kmedias_parametrizer(
         soma_da_metrica = 0
         start = perf_counter()
         for _ in range(n_iter):
-            kmedias = KMedias(n_class)
-            kmedias.fit(data.map(float).values)
-            soma_da_metrica += dict_de_metricas[key](labels, kmedias.rotulo)
+            atributos = kmeans.fit(data.values, n_class)
+            soma_da_metrica += dict_de_metricas[key](
+                labels, atributos['rotulo']
+            )
 
         end = perf_counter()
         duration = end - start
@@ -189,8 +180,8 @@ def kmedias_parametrizer(
     return dict_dos_resultados
 
 
-def convert_label_to_int(
-    target: pd.Series, n_class: int, lista_de_classes: pd.Index
+def make_label(
+    target: pd.Series, n_class: int, lista_de_classes: pd.Categorical
 ) -> list[int]:
     """
     Converte uma série de rótulos em uma lista de inteiros, onde cada
@@ -208,24 +199,18 @@ def convert_label_to_int(
     Examples:
 
         >>> df = fetch_openml(name='iris', version=1, parser='auto')
-        >>> n_class = len(df['target'].unique())
-        >>> lista_de_classes = df['target'].unique().categories
-        >>> convert_label_to_int(df['target'], n_class, lista_de_classes)
-        [0, 0, 0, 0, ..., 2]
+        >>> categorias = df['target'].unique()
+        >>> n_class = len(categorias)
+        >>> make_label(df['target'], n_class, categorias)
+        array([0, 0, 0, 0, ..., 2])
 
     """
-    label = {}
-    lista_de_rotulos = [0] * len(target)
-    for index, rotulo in enumerate(lista_de_classes):
-        label[rotulo] = index
+    rotulo = {rotulo: index for index, rotulo in enumerate(lista_de_classes)}
 
-    for index, tipo in enumerate(target):
-        lista_de_rotulos[index] = label[tipo]
-
-    return lista_de_rotulos
+    return np.array([rotulo[tipo] for tipo in target])
 
 
-def cria_data_frame(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
+def cria_dataframe(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
     """
     Cria um DataFrame utilizando a biblioteca pandas, com colunas para métricas
     pré-definidas e seus respectivos tempos de execução.
@@ -240,7 +225,7 @@ def cria_data_frame(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
 
     Examples:
         >>> metricas = {'completeness_score': metrics.completeness_score}
-        >>> cria_data_frame(metricas)
+        >>> cria_dataframe(metricas)
         Empty DataFrame
         Columns: [Nome, completeness_score, Tempo 1]
         Index: []
@@ -289,10 +274,9 @@ def preprocess(dataset: np.ndarray):
     return
 
 
-
 def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
 
-    dataframe = cria_data_frame(METRICAS)
+    dataframe = cria_dataframe(METRICAS)
 
     for nome_dataset in lista_de_datasets:
 
@@ -313,12 +297,11 @@ def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
             print('Não achei a base de dados')
 
         if df is not None:
-            n_class = len(df['target'].unique())
-            lista_de_classes = df['target'].unique().categories
+            categorias = df['target'].unique()
+            n_class = len(categorias)
             n_iter = 1
-            labels = convert_label_to_int(
-                df['target'], n_class, lista_de_classes
-            )
+
+            labels = make_label(df['target'], n_class, categorias)
 
             sklearn_resultados_de_uma_metrica = sklearn_parametrizer(
                 df['data'], labels, n_class, METRICAS, n_iter
@@ -341,7 +324,12 @@ def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
 
 def main():
     #df = executa_datasets(OPENML_DATASETS)
+    #df.to_csv(df, index=False)
 
+    df = fetch_openml(name='anneal', version=1 , parser='auto')
+    kmeans = KMeans(n_clusters=3, n_init='auto', init='random')
+    print(df['data'].values)
+    kmeans.fit(df['data'].values)
     return
 
 
