@@ -4,6 +4,7 @@ import numpy as np
 def update_clusters(
     dataset: np.ndarray,
     centroides: np.ndarray,
+    rotulo: np.ndarray
 ) -> list(list[float]):
     """
     Cria uma relação entre um centroide e um vetor do dataset, baseado na norma
@@ -27,13 +28,14 @@ def update_clusters(
     """
     clusters = [[] for _ in range(len(centroides))]
 
-    for ponto in dataset:
+    for idx, ponto in enumerate(dataset):
         distancias = np.empty(len(centroides), dtype=np.float64)
         for i in range(len(centroides)):
             distancias[i] = np.linalg.norm(ponto - centroides[i])
 
         indice = np.argmin(distancias)
         clusters[indice].append(ponto)
+        rotulo[idx] = indice
 
     return clusters
 
@@ -90,21 +92,18 @@ def fit(
         {'clusters': ...}
 
     """
+    rotulo = np.zeros(data.shape[0])
     centroides = data[np.random.choice(data.shape[0], n_class, replace=False)]
     centroides_antigo = np.zeros_like(centroides)
 
     for _ in range(n_iter):
-        clusters = update_clusters(data, centroides)
+        clusters = update_clusters(data, centroides, rotulo)
         centroides = update_centroides(clusters, centroides)
 
         if np.array_equal(centroides, centroides_antigo):
             break
 
         centroides_antigo = centroides.copy()
-
-    rotulo = np.zeros(data.shape[0])
-    for i, cluster in enumerate(clusters):
-        rotulo[[data.tolist().index(point.tolist()) for point in cluster]] = i
 
     atributos = {
         'clusters': clusters,
