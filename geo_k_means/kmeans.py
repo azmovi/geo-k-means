@@ -64,7 +64,7 @@ def update_centroides(
     """
 
     for index, lista_de_pontos in enumerate(clusters):
-        media = np.nanmean(lista_de_pontos, axis=0)
+        media = np.mean(lista_de_pontos, axis=0)
         centroides[index] = media
 
     return centroides

@@ -1,5 +1,5 @@
 from time import perf_counter
-
+import asyncio
 import pandas as pd
 import numpy as np
 
@@ -8,6 +8,7 @@ from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
+from sklearn.utils._bunch import Bunch
 
 # import geo_k_means.kmeans # pytest
 
@@ -33,7 +34,6 @@ OPENML_DATASETS = [
     'monks-problems-1',
     'breast-tissue',
     'GCM',
-    'collins',
     'balance-scale',
     'servo',
     'AP_Breast_Lung',
@@ -65,10 +65,8 @@ OPENML_DATASETS = [
     'SRBCT',
     'Colon',
     'climate-model-simulation-crashes',
-    'anneal',
     'pasture',
     'glass',
-    'lowbwt',
     'kc1-binary',
     'dermatology',
     'backache',
@@ -79,7 +77,7 @@ OPENML_DATASETS = [
 
 
 def sklearn_parametrizer(
-    data: pd.DataFrame,
+    data: np.ndarray,
     labels: list[int],
     n_class: int,
     dict_de_metricas: dict[str, callable],
@@ -120,22 +118,19 @@ def sklearn_parametrizer(
         start = perf_counter()
         for _ in range(n_iter):
             kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
-            kmeans.fit(data.values)
+            kmeans.fit(data)
             soma_da_metrica += dict_de_metricas[key](labels, kmeans.labels_)
 
         end = perf_counter()
         duration = end - start
 
-        dict_dos_resultados[key] = [
-            round(soma_da_metrica / n_iter, 3),
-            round(duration, 3)
-        ]
+        dict_dos_resultados[key] = [soma_da_metrica, duration]
 
     return dict_dos_resultados
 
 
 def kmedias_parametrizer(
-    data: pd.DataFrame,
+    data: np.ndarray,
     labels: list[int],
     n_class: int,
     dict_de_metricas: dict[str, callable],
@@ -164,7 +159,7 @@ def kmedias_parametrizer(
         soma_da_metrica = 0
         start = perf_counter()
         for _ in range(n_iter):
-            atributos = kmeans.fit(data.values, n_class)
+            atributos = kmeans.fit(data, n_class)
             soma_da_metrica += dict_de_metricas[key](
                 labels, atributos['rotulo']
             )
@@ -172,17 +167,30 @@ def kmedias_parametrizer(
         end = perf_counter()
         duration = end - start
 
-        dict_dos_resultados[key] = [
-            round(soma_da_metrica / n_iter, 3),
-            round(duration, 3),
-        ]
+        dict_dos_resultados[key] = [soma_da_metrica, duration]
 
     return dict_dos_resultados
 
 
-def make_label(
-    target: pd.Series, n_class: int, lista_de_classes: pd.Categorical
-) -> list[int]:
+def _preprocess_data(dataframe: pd.DataFrame):
+    dataframe = dataframe.bfill()
+    data = dataframe.values
+    if data.dtype != np.float64:
+        conversor = {}
+        valor = 0
+        for i in range(data.shape[0]):
+            for j in range(data.shape[1]):
+                try:
+                    data[i][j] = float(data[i][j])
+                except ValueError:
+                    if data[i][j] not in conversor:
+                        conversor[data[i][j]] = valor
+                        valor += 1
+                    data[i][j] = conversor[data[i][j]]
+    return data
+
+
+def _preprocess_target(target: pd.Series) -> np.ndarray:
     """
     Converte uma série de rótulos em uma lista de inteiros, onde cada
     rótulo possui um número correspondente de acordo com a quantidade de
@@ -205,133 +213,75 @@ def make_label(
         array([0, 0, 0, 0, ..., 2])
 
     """
-    rotulo = {rotulo: index for index, rotulo in enumerate(lista_de_classes)}
+    categorias = target.unique()
+    rotulo = {rotulo: index for index, rotulo in enumerate(categorias)}
 
     return np.array([rotulo[tipo] for tipo in target])
 
 
-def cria_dataframe(dict_de_metricas: dict[str, callable]) -> pd.DataFrame:
-    """
-    Cria um DataFrame utilizando a biblioteca pandas, com colunas para métricas
-    pré-definidas e seus respectivos tempos de execução.
+def preprocess(dataframe: Bunch) -> tuple[np.ndarray]:
 
-    Parameters:
-        dict_de_metricas: Um dicionário onde as chaves são os nomes das
-        métricas e os valores são suas respectivas funções.
-
-    Returns:
-        Um DataFrame com colunas para as métricas e os tempos de execução para
-        cada métrica.
-
-    Examples:
-        >>> metricas = {'completeness_score': metrics.completeness_score}
-        >>> cria_dataframe(metricas)
-        Empty DataFrame
-        Columns: [Nome, completeness_score, Tempo 1]
-        Index: []
-    """
-    colunas = pd.DataFrame({}, columns=['Nome'])
-
-    for index, key in enumerate(dict_de_metricas.keys(), start=1):
-        colunas[key] = None
-        colunas[f'Tempo {index}'] = None
-
-    return colunas
+    data = _preprocess_data(dataframe['data'])
+    target = _preprocess_target(dataframe['target'])
+    return data, target
 
 
-def formata_resultado_de_uma_metrica(
-    dataframe: pd.DataFrame,
-    nome_da_metrica: str,
-    dict_de_metricas: dict[str, callable],
-    sklearn_resultados_de_uma_metrica: dict[str, list[float]],
-    kmedias_resultados_de_uma_metrica: dict[str, list[float]],
-) -> pd.DataFrame:
+async def executa_datasets(nome: str) -> pd.DataFrame:
 
-    linha_dataframe = {'Nome': nome_da_metrica}
+    version = 1
+    while version <= 5:
+        try:
+            df = fetch_openml(name=nome, version=version, parser='auto')
+            break
+        except OpenMLError:
+            version += 1
 
-    for index, chave in enumerate(kmedias_resultados_de_uma_metrica, start=1):
+    if df is not None:
+        categorias = df['target'].unique()
+        n_class = len(categorias)
+        n_iter = 30
+        data, labels = preprocess(df)
 
-        desempenho_km = kmedias_resultados_de_uma_metrica[chave][0]
-        desempenho_sk = sklearn_resultados_de_uma_metrica[chave][0]
+        sklearn_metricas_de_um_dataset = sklearn_parametrizer(
+            data, labels, n_class, METRICAS, n_iter
+        )
 
-        tempo_km = kmedias_resultados_de_uma_metrica[chave][1]
-        tempo_sk = sklearn_resultados_de_uma_metrica[chave][1]
+        kmedias_metricas_de_um_dataset = kmedias_parametrizer(
+            data, labels, n_class, METRICAS, n_iter
+        )
 
-        razao_acertos = round(desempenho_km / desempenho_sk, 3)
-        razao_tempo = round(tempo_km / tempo_sk, 3)
+    dicio_base = {'nome': nome}
+    for index, key in enumerate(
+            kmedias_metricas_de_um_dataset.keys(), start=1
+    ):
 
-        linha_dataframe[chave] = razao_acertos
-        linha_dataframe[f'Tempo {index}'] = razao_tempo
+        # Razão de acertos
+        dicio_base[key] = round(
+            kmedias_metricas_de_um_dataset[key][0]
+            / sklearn_metricas_de_um_dataset[key][0],
+            3,
+        )
+        # Razão de tempo
+        dicio_base[f'time {index}'] = round(
+            kmedias_metricas_de_um_dataset[key][1]
+            / sklearn_metricas_de_um_dataset[key][1],
+            3,
+        )
 
-    temporario = pd.DataFrame(linha_dataframe, index=[0], dtype='object')
-
-    dataframe = pd.concat([dataframe, temporario], ignore_index=True)
-
-    return dataframe
-
-
-def preprocess(dataset: np.ndarray):
-    return
-
-
-def executa_datasets(lista_de_datasets: list[str]) -> pd.DataFrame:
-
-    dataframe = cria_dataframe(METRICAS)
-
-    for nome_dataset in lista_de_datasets:
-
-        version = 1
-        df = None
-
-        while version <= 5:
-            try:
-                df = fetch_openml(
-                    name=nome_dataset, version=version, parser='auto'
-                )
-                break
-
-            except OpenMLError:
-                version += 1
-
-        if version > 5:
-            print('Não achei a base de dados')
-
-        if df is not None:
-            categorias = df['target'].unique()
-            n_class = len(categorias)
-            n_iter = 1
-
-            labels = make_label(df['target'], n_class, categorias)
-
-            sklearn_resultados_de_uma_metrica = sklearn_parametrizer(
-                df['data'], labels, n_class, METRICAS, n_iter
-            )
-
-            kmedias_resultados_de_uma_metrica = kmedias_parametrizer(
-                df['data'], labels, n_class, METRICAS, n_iter
-            )
-
-            dataframe = formata_resultado_de_uma_metrica(
-                dataframe,
-                nome_dataset,
-                METRICAS,
-                sklearn_resultados_de_uma_metrica,
-                kmedias_resultados_de_uma_metrica,
-            )
-
-    return dataframe
+    return dicio_base
 
 
-def main():
-    #df = executa_datasets(OPENML_DATASETS)
-    #df.to_csv(df, index=False)
+async def main():
+    tasks = []
+    for nome in OPENML_DATASETS:
+        task = asyncio.create_task(executa_datasets(nome))
+        tasks.append(task)
 
-    df = fetch_openml(name='anneal', version=1 , parser='auto')
-    kmeans = KMeans(n_clusters=3, n_init='auto', init='random')
-    print(df['data'].values)
-    kmeans.fit(df['data'].values)
-    return
+    # df = fetch_openml(name='dermatology', version=1, parser='auto')
+    return await asyncio.gather(*tasks)
 
 
 if __name__ == '__main__':
-    main()
+    lista_de_dict = asyncio.run(main())
+    df = pd.DataFrame(lista_de_dict)
+    df.to_csv('arquivo.csv', index=False)
