@@ -9,9 +9,10 @@ desempenho devido a programação paralela implementada no algoritmo
 
 ### Metodos utilizados:
 
-- Rand index
+- Rand Index
+- Mutual Info Score
 
-### Rand index:
+#### Rand Index:
 
 - Medir a similaridade entre os dados presentes nas classes, desconsiderando permutações.
 - Representa a precisão se um dado pertence ou não a um cluster.
@@ -22,7 +23,7 @@ desempenho devido a programação paralela implementada no algoritmo
     - $a$: o número de pares de elementos que estão no **mesmo** conjunto em $C$ e no mesmo conjunto em $K$ 
     - $b$: o número de pares de elementos que estão em conjuntos **diferentes** em $C$ e em diferentes conjuntos em $K$ 
 
-##### unadjusted Rand index:
+##### Unadjusted Rand Index:
 
 - Não garante que atribuições aleatórias de rótulos obterá um valor próximo de zero
 - Formulação matemática:
@@ -30,13 +31,17 @@ $$ RI = \frac{a + b}{C^{n}_{2}} $$
 
 - Sendo $C^{n}_{2}$ o número total de pares possíveis no conjunto de dados
 
-##### adjusted Rand index:
+##### Adjusted Rand Index:
 
 - Garante que atribuições aleatórias de rótulos obterá um valor próximo de zero ou negativo
 - Formulação matemática:
 $$ ARI = \frac{RI - E[RI]}{max(RI) - E[RI]} $$
 
-
+#### Mutual Info Score:
+- Mede a concordância das duas atribuições ignorando permutações
+##### Mutual Info Score:
+##### Adjusted Mutual Info Score:
+##### Normalized Mutual Info Score:
 ### Referências:
 
 [clustering-performance-evaluation
