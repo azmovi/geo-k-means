@@ -1,7 +1,9 @@
-from time import perf_counter
 import asyncio
-import pandas as pd
+from time import perf_counter
+
+# import kmeans
 import numpy as np
+import pandas as pd
 
 # Importações de métricas no uso no algoritmo
 from sklearn import metrics
@@ -10,10 +12,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
 from sklearn.utils._bunch import Bunch
 
-# import geo_k_means.kmeans # pytest
-
-import kmeans
-
+import geo_k_means.kmeans  # pytest
 
 METRICAS = {
     'completeness_score': metrics.completeness_score,
@@ -252,7 +251,7 @@ async def executa_datasets(nome: str) -> pd.DataFrame:
 
     dicio_base = {'nome': nome}
     for index, key in enumerate(
-            kmedias_metricas_de_um_dataset.keys(), start=1
+        kmedias_metricas_de_um_dataset.keys(), start=1
     ):
 
         # Razão de acertos

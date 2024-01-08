@@ -2,9 +2,7 @@ import numpy as np
 
 
 def update_clusters(
-    dataset: np.ndarray,
-    centroides: np.ndarray,
-    rotulo: np.ndarray
+    dataset: np.ndarray, centroides: np.ndarray, rotulo: np.ndarray
 ) -> list(list[float]):
     """
     Cria uma relação entre um centroide e um vetor do dataset, baseado na norma
