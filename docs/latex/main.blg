@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2023/Arch Linux)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: ieeetr.bst
+Database file #1: mybib.bib
+Warning--can't use both author and editor fields in Brand
+Warning--can't use both author and editor fields in Huo2007
+Warning--empty journal in Isomap_converg
+You've used 15 entries,
+            1876 wiz_defined-function locations,
+            581 strings with 5763 characters,
+and the built_in function-call counts, 4238 in all, are:
+= -- 453
+> -- 129
+< -- 0
++ -- 49
+- -- 34
+* -- 282
+:= -- 581
+add.period$ -- 18
+call.type$ -- 15
+change.case$ -- 16
+chr.to.int$ -- 0
+cite$ -- 18
+duplicate$ -- 209
+empty$ -- 395
+format.name$ -- 34
+if$ -- 1046
+int.to.chr$ -- 0
+int.to.str$ -- 15
+missing$ -- 13
+newline$ -- 51
+num.names$ -- 15
+pop$ -- 40
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 167
+stack$ -- 0
+substring$ -- 344
+swap$ -- 101
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 3
+while$ -- 43
+width$ -- 17
+write$ -- 149
+(There were 3 warnings)
