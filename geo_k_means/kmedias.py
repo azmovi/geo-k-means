@@ -68,7 +68,7 @@ def update_centroides(
     return centroides
 
 
-def fit(
+def fit_kmedias(
     data: np.ndarray[float], n_class: int, n_iter: int = 100
 ) -> dict[str, list[float]]:
     """
