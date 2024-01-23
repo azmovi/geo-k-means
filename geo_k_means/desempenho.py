@@ -11,7 +11,6 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
 from sklearn.utils._bunch import Bunch
-from tqdm import tqdm
 
 # from geo_k_means.kmedias import fit_kmedias  # pytest
 from kmedias import fit_kmedias
@@ -297,14 +296,14 @@ async def desempenho_kmedias(nome: str, n_iter: int) -> dict[str, str | float]:
     return dicio_kmedias
 
 
-def exec_medias(
-    dicio_kmedias: dict[str, str | float],
+def exec_razao(
     dicio_sklearn: dict[str, str | float],
+    dicio_kmedias: dict[str, str | float],
 ) -> dict[str, str | float]:
 
     dicio_base = dict()
 
-    for nome in tqdm(OPENML_DATASETS, desc='Calculando Medias'):
+    for nome in OPENML_DATASETS:
         dicio_base['nome'] = nome
         for index, key in enumerate(dicio_sklearn.keys()):
             # Razão de acertos
@@ -324,7 +323,7 @@ def exec_medias(
 async def exec_kmedias():
     tasks = []
     n_iter = 30
-    for nome in tqdm(OPENML_DATASETS, desc='Async Kmedias'):
+    for nome in OPENML_DATASETS:
         task = asyncio.create_task(desempenho_kmedias(nome, n_iter))
         tasks.append(task)
 
@@ -333,39 +332,45 @@ async def exec_kmedias():
 
 async def exec_sklearn():
     tasks = []
-    n_iter = 1
-    for nome in tqdm(OPENML_DATASETS, desc='Async Sklearn'):
+    n_iter = 30
+    for nome in OPENML_DATASETS:
         task = asyncio.create_task(desempenho_sklearn(nome, n_iter))
         tasks.append(task)
-
     return await asyncio.gather(*tasks)
 
 
-async def main(tipo: str) -> bool:
+async def cria_csv_kmeans(lib: bool) -> dict[str, str | float]:
     string = '_desempenho.csv'
-    if tipo == 'sklearn':
+    if lib:
         lista_de_dict = await exec_sklearn()
         string = 'sklearn' + string
-    elif tipo == 'kmeans':
+    else:
         lista_de_dict = await exec_kmedias()
         string = 'kmedias' + string
-    else:
-        lista_sklearn = await exec_sklearn()
-        lista_kmedias = await exec_kmedias()
-        lista_de_dict = exec_kmedias(lista_sklearn, lista_kmedias)
-        string = 'razao' + string
 
     if lista_de_dict:
         df = pd.DataFrame(lista_de_dict)
         df.to_csv(string, index=False)
-        return True
-    return False
+        print('Arquivo csv criado')
+    return lista_de_dict
+
+
+async def main() -> None:
+    resultados = []
+    lib = True
+    for i in range(2):
+        resultados.append(await cria_csv_kmeans(lib))
+        lib = False
+
+    lista_de_dict = exec_razao(resultados[0], resultados[1])
+    df = pd.DataFrame(lista_de_dict)
+    df.to_csv('razao_desempenho.csv', index=False)
+
+    return
 
 
 if __name__ == '__main__':
-    tipo = 'sklearn'
-    sucesso = asyncio.run(main(tipo))
-    if sucesso:
-        print('Arquivo csv criado')
-    else:
-        print('Ocorreu um erro')
+    start = perf_counter()
+    asyncio.run(main())
+    end = perf_counter()
+    print(f'Time total {start - end}')
