@@ -27,7 +27,6 @@ METRICAS = {
     'normalized_mutual_info_score': metrics.normalized_mutual_info_score,
 }
 
-
 OPENML_DATASETS = [
     'iris',
     'micro-mass',
@@ -110,22 +109,21 @@ def sklearn_parametrizer(
         >>> sklearn_parametrizer(df['data'], labels, 3, METRICAS)
         {'completeness_score': [...], ...}
     """
+    dict_dos_resultados = {metrica: [] for metrica in METRICAS.keys()}
+    start = perf_counter()
+    for _ in range(n_iter):
+        kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
+        kmeans.fit(data)
+        for metrica in dict_de_metricas.keys():
+            dict_dos_resultados[metrica].append(
+                dict_de_metricas[metrica](labels, kmeans.labels_)
+            )
 
-    dict_dos_resultados = {}
+    for key, value in dict_dos_resultados.items():
+        dict_dos_resultados[key] = round(np.mean(value), 3)
 
-    for key in dict_de_metricas.keys():
-        soma_da_metrica = 0
-        start = perf_counter()
-        for _ in range(n_iter):
-            kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
-            kmeans.fit(data)
-            soma_da_metrica += dict_de_metricas[key](labels, kmeans.labels_)
-
-        end = perf_counter()
-        duration = end - start
-
-        dict_dos_resultados[key] = [soma_da_metrica, duration]
-
+    end = perf_counter()
+    dict_dos_resultados['tempo'] = end - start
     return dict_dos_resultados
 
 
@@ -153,21 +151,20 @@ def kmedias_parametrizer(
         Um dicionário contendo o desempenho de cada métrica e o tempo de
         execução correspondente.
     """
-
-    dict_dos_resultados = {}
-    for key in dict_de_metricas.keys():
-        soma_da_metrica = 0
-        start = perf_counter()
-        for _ in range(n_iter):
-            atributos = fit_kmedias(data, n_class)
-            soma_da_metrica += dict_de_metricas[key](
-                labels, atributos['rotulo']
+    dict_dos_resultados = {key: [] for key in METRICAS.keys()}
+    start = perf_counter()
+    for _ in range(n_iter):
+        atributos = fit_kmedias(data, n_class)
+        for metrica in dict_de_metricas.keys():
+            dict_dos_resultados[metrica].append(
+                dict_de_metricas[metrica](labels, atributos['rotulo'])
             )
 
-        end = perf_counter()
-        duration = end - start
+    for key, value in dict_dos_resultados.items():
+        dict_dos_resultados[key] = round(np.mean(value), 3)
 
-        dict_dos_resultados[key] = [soma_da_metrica, duration]
+    end = perf_counter()
+    dict_dos_resultados['tempo'] = end - start
 
     return dict_dos_resultados
 
@@ -224,7 +221,9 @@ def preprocess(dataframe: Bunch) -> tuple[np.ndarray]:
     return data, target
 
 
-async def desempenho_sklearn(nome: str, n_iter: int) -> dict[str, str | float]:
+async def desempenho_abordagem(
+    nome: str, n_iter: int, tipo: bool
+) -> dict[str, str | float]:
 
     version = 1
     while version <= 5:
@@ -237,115 +236,64 @@ async def desempenho_sklearn(nome: str, n_iter: int) -> dict[str, str | float]:
     if df is not None:
         categorias = df['target'].unique()
         n_class = len(categorias)
-        n_iter = 30
+        dicio_de_metricas = {'nome': nome}
         data, labels = preprocess(df)
 
-        sklearn_metricas_de_um_dataset = sklearn_parametrizer(
-            data, labels, n_class, METRICAS, n_iter
-        )
+        if tipo:
+            dicio_de_metricas.update(
+                sklearn_parametrizer(data, labels, n_class, METRICAS, n_iter)
+            )
+        else:
+            dicio_de_metricas.update(
+                kmedias_parametrizer(data, labels, n_class, METRICAS, n_iter)
+            )
 
-    dicio_sklearn = {'nome': nome}
-    for index, key in enumerate(
-        sklearn_metricas_de_um_dataset.keys(), start=1
-    ):
-
-        # Razão de acertos
-        dicio_sklearn[key] = round(
-            sklearn_metricas_de_um_dataset[key][0],
-        )
-        # Razão de tempo
-        dicio_sklearn[f'time {index}'] = round(
-            sklearn_metricas_de_um_dataset[key][1], 3
-        )
-
-    return dicio_sklearn
-
-
-async def desempenho_kmedias(nome: str, n_iter: int) -> dict[str, str | float]:
-
-    version = 1
-    while version <= 5:
-        try:
-            df = fetch_openml(name=nome, version=version, parser='auto')
-            break
-        except OpenMLError:
-            version += 1
-
-    if df is not None:
-        categorias = df['target'].unique()
-        n_class = len(categorias)
-        n_iter = 30
-        data, labels = preprocess(df)
-
-        kmedias_metricas_de_um_dataset = kmedias_parametrizer(
-            data, labels, n_class, METRICAS, n_iter
-        )
-
-    dicio_kmedias = {'nome': nome}
-    for index, key in enumerate(
-        kmedias_metricas_de_um_dataset.keys(), start=1
-    ):
-
-        # Razão de acertos
-        dicio_kmedias[key] = round(kmedias_metricas_de_um_dataset[key][0])
-        # Razão de tempo
-        dicio_kmedias[f'time {index}'] = round(
-            kmedias_metricas_de_um_dataset[key][1]
-        )
-
-    return dicio_kmedias
+    return dicio_de_metricas
 
 
 def exec_razao(
-    dicio_sklearn: dict[str, str | float],
-    dicio_kmedias: dict[str, str | float],
+    list_dict_sklearn: list[dict[str, str | float]],
+    list_dict_kmedias: list[dict[str, str | float]],
 ) -> dict[str, str | float]:
 
-    dicio_base = dict()
+    list_dict_razao = list()
 
-    for nome in OPENML_DATASETS:
-        dicio_base['nome'] = nome
-        for index, key in enumerate(dicio_sklearn.keys()):
+    for index, dict_parameters in enumerate(list_dict_sklearn):
+        dict_base = dict()
+        for key in dict_parameters.keys():
             # Razão de acertos
-            dicio_base[key] = round(
-                dicio_kmedias[key][0] / dicio_sklearn[key][0],
-                3,
-            )
-            # Razão de tempo
-            dicio_base[f'time {index}'] = round(
-                dicio_kmedias[key][1] / dicio_sklearn[key][1],
-                3,
-            )
+            if key == 'nome':
+                dict_base[key] = dict_parameters[key]
+            else:
+                dict_base[key] = round(
+                    (
+                        list_dict_kmedias[index][key]
+                        / list_dict_sklearn[index][key],
+                        3,
+                    )
+                )
+        list_dict_razao.append(dict_base)
 
-    return dicio_base
+    return list_dict_razao
 
 
-async def exec_kmedias():
+async def exec_abordagem(tipo: bool):
     tasks = []
     n_iter = 30
     for nome in OPENML_DATASETS:
-        task = asyncio.create_task(desempenho_kmedias(nome, n_iter))
+        task = asyncio.create_task(desempenho_abordagem(nome, n_iter, tipo))
         tasks.append(task)
 
-    return await asyncio.gather(*tasks)
-
-
-async def exec_sklearn():
-    tasks = []
-    n_iter = 30
-    for nome in OPENML_DATASETS:
-        task = asyncio.create_task(desempenho_sklearn(nome, n_iter))
-        tasks.append(task)
     return await asyncio.gather(*tasks)
 
 
 async def cria_csv_kmeans(lib: bool) -> dict[str, str | float]:
     string = '_desempenho.csv'
     if lib:
-        lista_de_dict = await exec_sklearn()
+        lista_de_dict = await exec_abordagem(lib)
         string = 'sklearn' + string
     else:
-        lista_de_dict = await exec_kmedias()
+        lista_de_dict = await exec_abordagem(lib)
         string = 'kmedias' + string
 
     if lista_de_dict:
@@ -361,7 +309,6 @@ async def main() -> None:
     for i in range(2):
         resultados.append(await cria_csv_kmeans(lib))
         lib = False
-
     lista_de_dict = exec_razao(resultados[0], resultados[1])
     df = pd.DataFrame(lista_de_dict)
     df.to_csv('razao_desempenho.csv', index=False)
@@ -373,4 +320,4 @@ if __name__ == '__main__':
     start = perf_counter()
     asyncio.run(main())
     end = perf_counter()
-    print(f'Time total {start - end}')
+    print(f'Time total {end - start}')
