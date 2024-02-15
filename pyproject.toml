@@ -19,8 +19,7 @@ openml = "^0.14.1"
 numpy = "^1.26.0"
 scipy = "^1.9.0"
 pandas = "^2.1.2"
-numba = "^0.58.1"
-tqdm = "^4.66.1"
+networkx = "^3.2.1"
 
 
 [build-system]
@@ -36,8 +35,14 @@ addopts = "--doctest-modules"
 profile = "black"
 line_length = 79
 
+[tool.coverage.run]
+omit = [
+    "geo_k_means/desempenho.py",
+    ]
+
+
 [tool.taskipy.tasks]
 lint = "blue --check --diff . && isort --check --diff ."
 pre_test = "task lint"
-test = "pytest -s -x --cov=geo_k_means -vv"
+test = "pytest -s -x --cov=geo_k_means -vv --ignore=geo_k_means/desempenho.py"
 post_test = "coverage html"
