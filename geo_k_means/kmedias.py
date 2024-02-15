@@ -10,8 +10,8 @@ def update_clusters(
 
     Parameters:
         dataset: Uma lista de centroides, onde cada centroide é um vetor.
-
         centroides: Uma lista de centroides, onde cada centroide é um vetor.
+        rotulo: Um lista
 
     Returns:
         Uma lista de listas onde a quantidade de listas sera igual a quantidade
@@ -21,7 +21,8 @@ def update_clusters(
     Examples:
         >>> data = np.array([4, 1, 2, 10, 4, 5, 2, 1])
         >>> centroides = np.array([3, 5])
-        >>> update_clusters(data, centroides)
+        >>> rotulo = np.zeros(data.shape[0])
+        >>> update_clusters(data, centroides, rotulo)
         [[4, 1, 2, 4, 2, 1], [10, 5]]
     """
     clusters = [[] for _ in range(len(centroides))]
@@ -86,7 +87,7 @@ def fit_kmedias(
 
     Examples:
         >>> data = np.array([4, 1, 2, 10, 4, 5, 2, 1])
-        >>> fit(data, 2)
+        >>> fit_kmedias(data, 2)
         {'clusters': ...}
 
     """

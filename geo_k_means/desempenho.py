@@ -12,8 +12,10 @@ from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
 from sklearn.utils._bunch import Bunch
 
-# from geo_k_means.kmedias import fit_kmedias  # pytest
-from kmedias import fit_kmedias
+from geo_k_means.kmedias import fit_kmedias  # pytest
+
+# from kmedias import fit_kmedias
+
 
 METRICAS = {
     'completeness_score': metrics.completeness_score,
