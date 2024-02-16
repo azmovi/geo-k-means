@@ -1,15 +1,14 @@
 import numpy as np
+from preprocessamento import preprocess
 from sklearn.neighbors import kneighbors_graph
-from networkx import single_source_dijkstra_path_length
+from sklearn.datasets import fetch_openml
 
+from scipy.sparse.csgraph import shortest_path
 # single_source_dijkstra_path_length -> dict do tamanho dos menores caminhos com todas as aretas
 
 
 def top_fit(
-        data: np.ndarray[float],
-        n_class: int,
-        n_neighbors: int,
-        n_iter: int = 100
+    data: np.ndarray[float], n_class: int, n_neighbors: int, n_iter: int = 100
 ) -> dict[str, list[float]]:
     """
     Executa o treinamento de classificação atualizando os clusters e centroides
@@ -17,14 +16,20 @@ def top_fit(
     Parameters:
         data: Um dataset que será treinado.
     """
-    centroides = data[np.random.choice(data.shape[0], n_class, replace=False)]
+    idx_centroides = np.random.choice(data.shape[0], n_class, replace=False)
+    centroides = data[idx_centroides]
     distancias = np.zeros((n_class, data.shape[0]))
-    novos_centroides = centroides
-    for _ in range(n_iter):
+
+    for _ in range(1):
         grafo = kneighbors_graph(data, n_neighbors)
         # Update cluters?
-        clusters = [[] for _ in range(n_class)]
         for i in range(n_class):
-            distancias[i] = single_source_dijkstra_path_length(
-                    grafo, novos_centroides
+            distancias[i] = shortest_path(
+                    csgraph=grafo, directed=False, indices=idx_centroides[i]
             )
+    return distancias
+
+
+df = fetch_openml(name='iris', version=1, parser='auto')
+data, target = preprocess(df)
+print(top_fit(data, 3, 11))
