@@ -19,7 +19,6 @@ openml = "^0.14.1"
 numpy = "^1.26.0"
 scipy = "^1.9.0"
 pandas = "^2.1.2"
-networkx = "^3.2.1"
 
 
 [build-system]
