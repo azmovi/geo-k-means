@@ -10,9 +10,9 @@ from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
-from sklearn.utils._bunch import Bunch
 
 from geo_k_means.kmedias import fit_kmedias  # pytest
+from geo_k_means.preprocessamento import preprocess
 
 # from kmedias import fit_kmedias
 
@@ -169,58 +169,6 @@ def kmedias_parametrizer(
     dict_dos_resultados['tempo'] = end - start
 
     return dict_dos_resultados
-
-
-def _preprocess_data(dataframe: pd.DataFrame):
-    dataframe = dataframe.bfill()
-    data = dataframe.values
-    if data.dtype != np.float64:
-        conversor = {}
-        valor = 0
-        for i in range(data.shape[0]):
-            for j in range(data.shape[1]):
-                try:
-                    data[i][j] = float(data[i][j])
-                except ValueError:
-                    if data[i][j] not in conversor:
-                        conversor[data[i][j]] = valor
-                        valor += 1
-                    data[i][j] = conversor[data[i][j]]
-    return data
-
-
-def _preprocess_target(target: pd.Series) -> np.ndarray:
-    """
-    Converte uma série de rótulos em uma lista de inteiros, onde cada
-    rótulo possui um número correspondente de acordo com a quantidade de
-    classes.
-
-    Parameters:
-        target: Uma serie do pandas que retrata as classificações reais
-        presentes na base de dados.
-
-    Returns:
-        Uma lista de inteiros com o tamanho do target que contem números
-        entre zero a número classificações - 1
-
-    Examples:
-
-        >>> df = fetch_openml(name='iris', version=1, parser='auto')
-        >>> _preprocess_target(df['target'])
-        array([0, 0, 0, 0, ..., 2])
-
-    """
-    categorias = target.unique()
-    rotulo = {rotulo: index for index, rotulo in enumerate(categorias)}
-
-    return np.array([rotulo[tipo] for tipo in target])
-
-
-def preprocess(dataframe: Bunch) -> tuple[np.ndarray]:
-
-    data = _preprocess_data(dataframe['data'])
-    target = _preprocess_target(dataframe['target'])
-    return data, target
 
 
 async def desempenho_abordagem(
