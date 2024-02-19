@@ -1,9 +1,6 @@
 import numpy as np
-from preprocessamento import preprocess
-from sklearn.neighbors import kneighbors_graph
-from sklearn.datasets import fetch_openml
-
 from scipy.sparse.csgraph import shortest_path
+from sklearn.neighbors import kneighbors_graph
 
 
 class Top_kmeans:
@@ -14,7 +11,20 @@ class Top_kmeans:
         n_vizinhos: int,
         n_iter: int = 100,
     ) -> None:
-
+        """
+        A função construtora do nosso algoritmo de clusterização com os
+        atributos data, n_clusters, n_vizinho, n_iter, n_amostra, rotulo
+        Parameters:
+            data: o conjunto de dados para ser treinado
+            n_clusters: o numero de centroides que o nosso algortimo precisa
+            n_vizinhos: o numero de vizinhos para determinar em que cluster o
+            ponto se adequa
+            n_iter: o numero máximo de iterações possíveis para encontrar a
+            convergência
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Top_kmeans(data, 2, 3)
+        """
         self.data = data
         self.n_clusters = n_clusters
         self.n_vizinhos = n_vizinhos
@@ -24,9 +34,20 @@ class Top_kmeans:
         return
 
     def update_clusters(
-            self, centroides: np.ndarray[float]
+        self, centroides: np.ndarray[float]
     ) -> list[np.ndarray[float]]:
-        """ """
+        """
+        Atualiza os valores dos clusters baseado nas distancias geodésicas e
+        rotula os respectivos dados baseado no cluster que ele é mais próximo
+        Parameters:
+            centroides: O vetor de centroides
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Top_kmeans(data, 2, 3)
+            >>> obj.idx_centroides = [1, 4]
+            >>> obj.update_clusters(np.array([[2, 10], [0, 0]]))
+            [[array([4, 1]), ...]]
+        """
         clusters = [[] for _ in range(self.n_clusters)]
         grafo = kneighbors_graph(self.data, self.n_vizinhos)
         distancias = np.zeros((self.n_clusters, self.n_amostra))
@@ -37,9 +58,7 @@ class Top_kmeans:
 
         for i in range(self.n_amostra):
             idx_vizinho_mais_proximo = distancias[:, i].argmin()
-            clusters[idx_vizinho_mais_proximo].append(
-                data[i]
-            )
+            clusters[idx_vizinho_mais_proximo].append(self.data[i])
             self.rotulo[i] = idx_vizinho_mais_proximo
         return clusters
 
@@ -47,7 +66,20 @@ class Top_kmeans:
         self, clusters: list[np.ndarray[float]]
     ) -> np.ndarray[float]:
         """
-
+        Atualiza o valor dos centroides baseado na media das coordenadas
+        presentes em cada vetor do cluster respectivo.
+        Parameters:
+            clusters: A lista de vetores em seu respectivo cluster
+        Returns:
+            Um vetor com as coordenadas dos vetores dos novos centroides
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Top_kmeans(data, 2, 3)
+            >>> centroides = [
+            ... np.array([[4, 1], [2, 10], [4, 5], [2, 1]]), np.array([[0, 0]])
+            ... ]
+            >>> obj.update_centroides(centroides)
+            [array([3.  , 4.25]), array([0., 0.])]
         """
         centroides = [[] for _ in range(self.n_clusters)]
         for idx, lista_de_pontos in enumerate(clusters):
@@ -56,37 +88,32 @@ class Top_kmeans:
 
         return centroides
 
-    def fit(self) -> dict[str, list[float]]:
+    def fit(self) -> None:
         """
         Executa o treinamento de classificação atualizando os clusters e
         centroides com o passar das iterações e no final rotula os dados.
         Parameters:
             data: Um dataset que será treinado.
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Top_kmeans(data, 2, 3)
+            >>> obj.fit()
         """
 
-        idx_centroides = np.random.choice(
+        self.idx_centroides = np.random.choice(
             self.n_amostra, self.n_clusters, replace=False
         )
-        centroides = data[idx_centroides]
+        centroides = self.data[self.idx_centroides]
         centroides_antigo = np.zeros_like(centroides)
 
-        for i in range(5):
+        for i in range(self.n_iter):
             clusters = self.update_clusters(centroides)
             centroides = self.update_centroides(clusters)
+            self.data[self.idx_centroides] = centroides
 
             if np.array_equal(centroides, centroides_antigo):
-                print(i)
                 break
 
             centroides_antigo = centroides.copy()
 
         return
-
-
-from sklearn import metrics
-
-df = fetch_openml(name='iris', version=1, parser='auto')
-data, target = preprocess(df)
-obj = Top_kmeans(data, 3, 11)
-obj.fit()
-print(metrics.rand_score(target, obj.rotulo))
