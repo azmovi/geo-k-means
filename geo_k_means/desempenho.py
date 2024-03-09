@@ -11,11 +11,13 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
 
-from geo_k_means.kmedias import fit_kmedias  # pytest
-from geo_k_means.preprocessamento import preprocess
+# from geo_k_means.kmedias import Kmedias
+# from geo_k_means.preprocessamento import preprocess
+# from geo_k_means.top_kmeans import TopKmeans
 
-# from kmedias import fit_kmedias
-
+from kmedias import Kmedias
+from preprocessamento import preprocess
+from top_kmeans import TopKmeans
 
 METRICAS = {
     'completeness_score': metrics.completeness_score,
@@ -111,10 +113,10 @@ def sklearn_parametrizer(
         >>> sklearn_parametrizer(df['data'], labels, 3, METRICAS)
         {'completeness_score': [...], ...}
     """
-    dict_dos_resultados = {metrica: [] for metrica in METRICAS.keys()}
-    start = perf_counter()
+    dict_dos_resultados = {metrica: [] for metrica in METRICAS}
+    start_kmeans = perf_counter()
+    kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
     for _ in range(n_iter):
-        kmeans = KMeans(n_clusters=n_class, n_init='auto', init='random')
         kmeans.fit(data)
         for metrica in dict_de_metricas.keys():
             dict_dos_resultados[metrica].append(
@@ -124,8 +126,8 @@ def sklearn_parametrizer(
     for key, value in dict_dos_resultados.items():
         dict_dos_resultados[key] = round(np.mean(value), 3)
 
-    end = perf_counter()
-    dict_dos_resultados['tempo'] = end - start
+    end_kmeans = perf_counter()
+    dict_dos_resultados['tempo'] = end_kmeans - start_kmeans
     return dict_dos_resultados
 
 
@@ -139,7 +141,7 @@ def kmedias_parametrizer(
     """
     Esta função calcula o desempenho de diferentes métricas de avaliação
     disponíveis na biblioteca sklearn, bem como o tempo de execução para cada
-    métrica usando o classificador feito por mim.
+    métrica usando o classificador kmedias feito por mim.
 
     Parametres:
         data: Um conjunto de dados para o treinamento.
@@ -153,20 +155,65 @@ def kmedias_parametrizer(
         Um dicionário contendo o desempenho de cada métrica e o tempo de
         execução correspondente.
     """
-    dict_dos_resultados = {key: [] for key in METRICAS.keys()}
-    start = perf_counter()
+    dict_dos_resultados = {key: [] for key in METRICAS}
+    start_kmedias = perf_counter()
+    kmedias = Kmedias(data, n_class)
     for _ in range(n_iter):
-        atributos = fit_kmedias(data, n_class)
+        kmedias.fit()
         for metrica in dict_de_metricas.keys():
             dict_dos_resultados[metrica].append(
-                dict_de_metricas[metrica](labels, atributos['rotulo'])
+                dict_de_metricas[metrica](labels, kmedias.rotulo)
             )
 
     for key, value in dict_dos_resultados.items():
         dict_dos_resultados[key] = round(np.mean(value), 3)
 
-    end = perf_counter()
-    dict_dos_resultados['tempo'] = end - start
+    end_kmedias = perf_counter()
+    dict_dos_resultados['tempo'] = end_kmedias - start_kmedias
+
+    return dict_dos_resultados
+
+
+def topkmeans_parametrizer(
+    data: np.ndarray,
+    labels: list[int],
+    n_class: int,
+    dict_de_metricas: dict[str, callable],
+    n_iter: int = 30,
+) -> dict[str, list[float]]:
+    """
+    Esta função calcula o desempenho de diferentes métricas de avaliação
+    disponíveis na biblioteca sklearn, bem como o tempo de execução para cada
+    métrica usando o classificador de kmeans topologico.
+
+    Parametres:
+        data: Um conjunto de dados para o treinamento.
+        labels: Rótulos corretos do conjunto de dados.
+        n_class: A quantidade de classes do conjunto de dados.
+        dict_de_metricas: Dicionario contendo as funções das métricas presentes
+        na biblioteca do sklearn.
+        n_iter: Número de iterações para o treinamento do modelo. Padrão é 30.
+
+    Returns:
+        Um dicionário contendo o desempenho de cada métrica e o tempo de
+        execução correspondente.
+    """
+    dict_dos_resultados = {key: [] for key in METRICAS}
+    start_topkmeans = perf_counter()
+    n_vizinhos = int(np.log2(data.shape[0]))
+    topkmeans = TopKmeans(data, n_class, n_vizinhos)
+    for _ in range(n_iter):
+        topkmeans.fit()
+        for metrica in dict_de_metricas.keys():
+            dict_dos_resultados[metrica].append(
+                dict_de_metricas[metrica](labels, topkmeans.rotulo)
+            )
+
+    for key, value in dict_dos_resultados.items():
+        dict_dos_resultados[key] = round(np.mean(value), 3)
+
+    end_topkmeans = perf_counter()
+    dict_dos_resultados['tempo'] = end_topkmeans - start_topkmeans
 
     return dict_dos_resultados
 
@@ -189,13 +236,17 @@ async def desempenho_abordagem(
         dicio_de_metricas = {'nome': nome}
         data, labels = preprocess(df)
 
-        if tipo:
+        if tipo == 0:
             dicio_de_metricas.update(
                 sklearn_parametrizer(data, labels, n_class, METRICAS, n_iter)
             )
-        else:
+        if tipo == 1:
             dicio_de_metricas.update(
                 kmedias_parametrizer(data, labels, n_class, METRICAS, n_iter)
+            )
+        if tipo == 2:
+            dicio_de_metricas.update(
+                topkmeans_parametrizer(data, labels, n_class, METRICAS, n_iter)
             )
 
     return dicio_de_metricas
@@ -206,10 +257,10 @@ def exec_razao(
     list_dict_kmedias: list[dict[str, str | float]],
 ) -> dict[str, str | float]:
 
-    list_dict_razao = list()
+    list_dict_razao = []
 
     for index, dict_parameters in enumerate(list_dict_sklearn):
-        dict_base = dict()
+        dict_base = {}
         for key in dict_parameters.keys():
             # Razão de acertos
             if key == 'nome':
@@ -237,14 +288,18 @@ async def exec_abordagem(tipo: bool):
     return await asyncio.gather(*tasks)
 
 
-async def cria_csv_kmeans(lib: bool) -> dict[str, str | float]:
+async def cria_csv_kmeans(tipo: int) -> dict[str, str | float]:
     string = '_desempenho.csv'
-    if lib:
-        lista_de_dict = await exec_abordagem(lib)
+    lista_de_dict = None
+    if tipo == 0:
+        lista_de_dict = await exec_abordagem(tipo)
         string = 'sklearn' + string
-    else:
-        lista_de_dict = await exec_abordagem(lib)
+    if tipo == 1:
+        lista_de_dict = await exec_abordagem(tipo)
         string = 'kmedias' + string
+    if tipo == 2:
+        lista_de_dict = await exec_abordagem(tipo)
+        string = 'topkmeans' + string
 
     if lista_de_dict:
         df = pd.DataFrame(lista_de_dict)
@@ -255,13 +310,12 @@ async def cria_csv_kmeans(lib: bool) -> dict[str, str | float]:
 
 async def main() -> None:
     resultados = []
-    lib = True
-    for i in range(2):
-        resultados.append(await cria_csv_kmeans(lib))
-        lib = False
-    lista_de_dict = exec_razao(resultados[0], resultados[1])
-    df = pd.DataFrame(lista_de_dict)
-    df.to_csv('razao_desempenho.csv', index=False)
+    tipo = 2
+    for _ in range(1):
+        resultados.append(await cria_csv_kmeans(tipo))
+    #  lista_de_dict = exec_razao(resultados[0], resultados[1])
+    # df = pd.DataFrame(lista_de_dict)
+    # df.to_csv('razao_desempenho.csv', index=False)
 
     return
 

@@ -1,15 +1,20 @@
+"""
+Modulo que implementa o algoritmo kmeans topologic
+"""
 import numpy as np
 from scipy.sparse.csgraph import shortest_path
 from sklearn.neighbors import kneighbors_graph
 
 
-class Top_kmeans:
+class TopKmeans:
+    """Classe que implementa o algoritmo de kmedias topologico"""
+
     def __init__(
         self,
-        data: np.ndarray[float],
+        data: np.ndarray,
         n_clusters: int,
         n_vizinhos: int,
-        n_iter: int = 100,
+        n_iter: int = 300,
     ) -> None:
         """
         A função construtora do nosso algoritmo de clusterização com os
@@ -23,7 +28,7 @@ class Top_kmeans:
             convergência
         Examples:
             >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
-            >>> obj = Top_kmeans(data, 2, 3)
+            >>> obj = TopKmeans(data, 2, 3)
         """
         self.data = data
         self.n_clusters = n_clusters
@@ -31,11 +36,9 @@ class Top_kmeans:
         self.n_iter = n_iter
         self.n_amostra = self.data.shape[0]
         self.rotulo = np.zeros(self.n_amostra)
-        return
+        self.idx_centroides = np.zeros(self.n_clusters)
 
-    def update_clusters(
-        self, centroides: np.ndarray[float]
-    ) -> list[np.ndarray[float]]:
+    def update_clusters(self) -> list[np.ndarray]:
         """
         Atualiza os valores dos clusters baseado nas distancias geodésicas e
         rotula os respectivos dados baseado no cluster que ele é mais próximo
@@ -43,9 +46,9 @@ class Top_kmeans:
             centroides: O vetor de centroides
         Examples:
             >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
-            >>> obj = Top_kmeans(data, 2, 3)
+            >>> obj = TopKmeans(data, 2, 3)
             >>> obj.idx_centroides = [1, 4]
-            >>> obj.update_clusters(np.array([[2, 10], [0, 0]]))
+            >>> obj.update_clusters()
             [[array([4, 1]), ...]]
         """
         clusters = [[] for _ in range(self.n_clusters)]
@@ -62,9 +65,7 @@ class Top_kmeans:
             self.rotulo[i] = idx_vizinho_mais_proximo
         return clusters
 
-    def update_centroides(
-        self, clusters: list[np.ndarray[float]]
-    ) -> np.ndarray[float]:
+    def update_centroides(self, clusters: list[np.ndarray]) -> np.ndarray:
         """
         Atualiza o valor dos centroides baseado na media das coordenadas
         presentes em cada vetor do cluster respectivo.
@@ -74,7 +75,7 @@ class Top_kmeans:
             Um vetor com as coordenadas dos vetores dos novos centroides
         Examples:
             >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
-            >>> obj = Top_kmeans(data, 2, 3)
+            >>> obj = TopKmeans(data, 2, 3)
             >>> centroides = [
             ... np.array([[4, 1], [2, 10], [4, 5], [2, 1]]), np.array([[0, 0]])
             ... ]
@@ -96,7 +97,7 @@ class Top_kmeans:
             data: Um dataset que será treinado.
         Examples:
             >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
-            >>> obj = Top_kmeans(data, 2, 3)
+            >>> obj = TopKmeans(data, 2, 3)
             >>> obj.fit()
         """
 
@@ -106,8 +107,8 @@ class Top_kmeans:
         centroides = self.data[self.idx_centroides]
         centroides_antigo = np.zeros_like(centroides)
 
-        for i in range(self.n_iter):
-            clusters = self.update_clusters(centroides)
+        for _ in range(self.n_iter):
+            clusters = self.update_clusters()
             centroides = self.update_centroides(clusters)
             self.data[self.idx_centroides] = centroides
 
@@ -115,5 +116,3 @@ class Top_kmeans:
                 break
 
             centroides_antigo = centroides.copy()
-
-        return

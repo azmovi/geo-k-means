@@ -1,7 +1,14 @@
+"""
+Modulo capaz de realizar distancias minimas usando o algortimo de dijkstra
+"""
 import heapq
 
 
 class Grafo:
+    """
+    Classe para criar um grafo
+    """
+
     def __init__(self, size: int) -> None:
         """
         Inicialização de um objeto grafo baseado no número de vértices
@@ -14,7 +21,6 @@ class Grafo:
         """
         self.size = size
         self.matrix = [[0 for _ in range(size)] for _ in range(size)]
-        return
 
     def adiciona_aresta(self, linha, coluna, distancia) -> bool:
         """
@@ -81,7 +87,7 @@ def dijsktra(grafo: Grafo, inicio: int) -> dict[int, int]:
         >>> dijsktra(grafo, 0)
         {0: 0, 1: 10, 2: 40, 3: 50, 4: 20}
     """
-    distancias = dict()
+    distancias = {}
     visitados = set()
     for vertice in range(grafo.size):
         distancias[vertice] = float('inf')

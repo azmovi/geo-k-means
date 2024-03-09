@@ -1,112 +1,109 @@
+"""
+Modulo capaz de realizar o algortimo de Kmeans
+"""
 import numpy as np
 
 
-def update_clusters(
-    dataset: np.ndarray, centroides: np.ndarray, rotulo: np.ndarray
-) -> list(list[float]):
-    """
-    Cria uma relação entre um centroide e um vetor do dataset, baseado na norma
-    entre os dois vetores.
+class Kmedias:
+    """Classe que treina um modelo baseado no algortimo kmeans"""
 
-    Parameters:
-        dataset: Uma lista de centroides, onde cada centroide é um vetor.
-        centroides: Uma lista de centroides, onde cada centroide é um vetor.
-        rotulo: Um lista
+    def __init__(self, data, n_clusters: int, n_iter: int = 300) -> None:
+        """
+        A função construtora do nosso algoritmo de clusterização com os
+        atributos data, n_clusters,  n_iter, n_amostra, rotulo
+        Parameters:
+            data: o conjunto de dados para ser treinado
+            n_clusters: o numero de centroides que o nosso algortimo precisa
+            n_iter: o numero máximo de iterações possíveis para encontrar a
+            convergência
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Kmedias(data, 2)
+        """
+        self.data = data
+        self.n_clusters = n_clusters
+        self.n_iter = n_iter
+        self.n_amostra = self.data.shape[0]
+        self.rotulo = np.zeros(self.n_amostra)
+        self.idx_centroides = np.zeros(self.n_clusters)
 
-    Returns:
-        Uma lista de listas onde a quantidade de listas sera igual a quantidade
-        de centroides, e dentro das listas terão os vetores que estão mais
-        próximos de um centroide.
+    def update_clusters(self, centroides: np.ndarray) -> list(list[float]):
+        """
+        Atualiza os valores dos clusters baseado nas distancias euclidianas e
+        rotula os respectivos dados baseado no cluster que ele é mais próximo
+        Parameters:
+            centroides: O vetor de centroides
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Kmedias(data, 2, 3)
+            >>> obj.idx_centroides = [1, 4]
+            >>> obj.update_clusters(np.array([[2, 10], [0, 0]]))
+            [[array([ 2, 10]), ...]]
+        """
+        clusters = [[] for _ in range(len(centroides))]
 
-    Examples:
-        >>> data = np.array([4, 1, 2, 10, 4, 5, 2, 1])
-        >>> centroides = np.array([3, 5])
-        >>> rotulo = np.zeros(data.shape[0])
-        >>> update_clusters(data, centroides, rotulo)
-        [[4, 1, 2, 4, 2, 1], [10, 5]]
-    """
-    clusters = [[] for _ in range(len(centroides))]
+        for idx, ponto in enumerate(self.data):
+            distancias = np.empty(len(centroides), dtype=np.float64)
+            for i, centro in enumerate(centroides):
+                distancias[i] = np.linalg.norm(ponto - centro)
 
-    for idx, ponto in enumerate(dataset):
-        distancias = np.empty(len(centroides), dtype=np.float64)
-        for i in range(len(centroides)):
-            distancias[i] = np.linalg.norm(ponto - centroides[i])
+            indice = np.argmin(distancias)
+            clusters[indice].append(ponto)
+            self.rotulo[idx] = indice
 
-        indice = np.argmin(distancias)
-        clusters[indice].append(ponto)
-        rotulo[idx] = indice
+        return clusters
 
-    return clusters
+    def update_centroides(
+        self, clusters: list[list[float]], centroides: np.ndarray
+    ) -> np.ndarray:
+        """
+        Atualiza o valor dos centroides baseado na media das coordenadas
+        presentes em cada vetor do cluster respectivo.
+        Parameters:
+            clusters: A lista de vetores em seu respectivo cluster
+        Returns:
+            Um vetor com as coordenadas dos vetores dos novos centroides
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Kmedias(data, 2)
+            >>> centroides = [
+            ... np.array([[4, 1], [2, 10], [4, 5], [2, 1]]), np.array([[0, 0]])
+            ... ]
+            >>> obj.update_centroides(centroides, data)
+            array([[3, 4],
+                   [0, 0],
+                   [4, 5],
+                   [2, 1],
+                   [0, 0]])
+        """
+        for index, lista_de_pontos in enumerate(clusters):
+            media = np.mean(lista_de_pontos, axis=0)
+            centroides[index] = media
 
+        return centroides
 
-def update_centroides(
-    clusters: list[list[float]], centroides: np.ndarray
-) -> np.ndarray:
-    """
-    Atualiza os valores dos centroides com base na média das coordenadas
-    dos vetores presentes em cada clusters.
+    def fit(self) -> None:
+        """
+        Executa o treinamento de classificação atualizando os clusters e
+        centroides com o passar das iterações e no final rotula os dados.
+        Parameters:
+            data: Um dataset que será treinado.
+        Examples:
+            >>> data = np.array([[4, 1], [2, 10], [4, 5], [2, 1], [0, 0]])
+            >>> obj = Kmedias(data, 2)
+            >>> obj.fit()
+        """
+        self.idx_centroides = np.random.choice(
+            self.n_amostra, self.n_clusters, replace=False
+        )
+        centroides = self.data[self.idx_centroides]
+        centroides_antigo = np.zeros_like(centroides)
 
-    Parameters:
-        clusters: uma lista de vetores da base de dados.
-        Centroide: uma lista com os centroides.
+        for _ in range(self.n_iter):
+            clusters = self.update_clusters(centroides)
+            centroides = self.update_centroides(clusters, centroides)
 
-    Returns:
-        Uma lista de novos centróides, onde cada centróide é uma lista de
-        coordenadas recalculadas.
+            if np.array_equal(centroides, centroides_antigo):
+                break
 
-    Examples:
-
-        >>> clusters = [[4, 1, 2, 4, 2, 1], [10, 5]]
-        >>> centroides = np.array([3, 5])
-        >>> update_centroides(clusters, centroides)
-        array([2, 7])
-    """
-
-    for index, lista_de_pontos in enumerate(clusters):
-        media = np.mean(lista_de_pontos, axis=0)
-        centroides[index] = media
-
-    return centroides
-
-
-def fit_kmedias(
-    data: np.ndarray[float], n_class: int, n_iter: int = 100
-) -> dict[str, list[float]]:
-    """
-    Executa o treinamento de classificação atualizando os clusters e centroides
-    com o passar das iterações e no final rotula os dados.
-
-    Parameters:
-        data: Um dataset que será treinado.
-        n_class: O numero de classes que terá o conjunto de dados.
-        n_iter: A quantidade máxima de iterações que o algoritmo pode fazer.
-
-    Returns:
-        Retorna um dicionario que contem as chaves: clusters, centroides,
-        rotulo.
-
-    Examples:
-        >>> data = np.array([4, 1, 2, 10, 4, 5, 2, 1])
-        >>> fit_kmedias(data, 2)
-        {'clusters': ...}
-
-    """
-    rotulo = np.zeros(data.shape[0])
-    centroides = data[np.random.choice(data.shape[0], n_class, replace=False)]
-    centroides_antigo = np.zeros_like(centroides)
-
-    for _ in range(n_iter):
-        clusters = update_clusters(data, centroides, rotulo)
-        centroides = update_centroides(clusters, centroides)
-
-        if np.array_equal(centroides, centroides_antigo):
-            break
-
-        centroides_antigo = centroides.copy()
-
-    atributos = {
-        'clusters': clusters,
-        'centroides': centroides,
-        'rotulo': rotulo,
-    }
-    return atributos
+            centroides_antigo = centroides.copy()
