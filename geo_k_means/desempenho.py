@@ -4,20 +4,20 @@ from time import perf_counter
 # import kmeans
 import numpy as np
 import pandas as pd
+from kmedias import Kmedias
+from preprocessamento import preprocess
 
 # Importações de métricas no uso no algoritmo
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
+from top_kmeans import TopKmeans
 
 # from geo_k_means.kmedias import Kmedias
 # from geo_k_means.preprocessamento import preprocess
 # from geo_k_means.top_kmeans import TopKmeans
 
-from kmedias import Kmedias
-from preprocessamento import preprocess
-from top_kmeans import TopKmeans
 
 METRICAS = {
     'completeness_score': metrics.completeness_score,
