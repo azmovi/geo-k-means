@@ -20,15 +20,18 @@ from top_kmeans import TopKmeans
 
 
 METRICAS = {
-    'completeness_score': metrics.completeness_score,
-    'fowlkes_mallows_score': metrics.fowlkes_mallows_score,
-    'homogeneity_score': metrics.homogeneity_score,
-    'v_measure_score': metrics.v_measure_score,
-    'rand_score': metrics.rand_score,
-    'adjusted_rand_score': metrics.adjusted_rand_score,
-    'mutual_info_score': metrics.mutual_info_score,
-    'adjusted_mutual_info_score': metrics.adjusted_mutual_info_score,
-    'normalized_mutual_info_score': metrics.normalized_mutual_info_score,
+    'completeness': metrics.completeness_score,
+    'fowlkes mallows': metrics.fowlkes_mallows_score,
+    'homogeneity': metrics.homogeneity_score,
+    'v measure': metrics.v_measure_score,
+    'rand': metrics.rand_score,
+    'adjusted rand': metrics.adjusted_rand_score,
+    'mutual info': metrics.mutual_info_score,
+    'adjusted mutual info': metrics.adjusted_mutual_info_score,
+    'normalized mutual info': metrics.normalized_mutual_info_score,
+    'silhouette': metrics.silhouette_score,
+    'calinski harabasz': calinski_harabasz_score,
+    'davies bouldin': davies_bouldin_score,
 }
 
 OPENML_DATASETS = [
@@ -76,6 +79,8 @@ OPENML_DATASETS = [
     'lsvt',
     'thoracic-surgery',
     'planning-relax',
+    'tr31.wc',
+    'tr45.wc',
 ]
 
 
