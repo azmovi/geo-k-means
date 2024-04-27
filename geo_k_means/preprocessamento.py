@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
+import scipy
 from sklearn.utils._bunch import Bunch
 
 
-def _preprocess_data(dataframe: pd.DataFrame) -> pd.DataFrame:
+def _pandas_preprocess_data(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     faz o preprocessamento do conjunto de dados colocando valores para float e
     caso tenha strings presentes no conjunto de dados converte para valores
@@ -39,7 +40,7 @@ def _preprocess_data(dataframe: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-def _preprocess_target(target: pd.Series) -> np.ndarray:
+def _pandas_preprocess_target(target: pd.Series) -> np.ndarray:
     """
     Converte uma série de rótulos em uma lista de inteiros, onde cada
     rótulo possui um número correspondente de acordo com a quantidade de
@@ -85,6 +86,17 @@ def preprocess(dataframe: Bunch) -> tuple[np.ndarray]:
         >>> preprocess(df)
         (array([...]))
     """
-    data = _preprocess_data(dataframe['data'])
-    target = _preprocess_target(dataframe['target'])
-    return data, target
+    if type(dataframe['data']) != pd.core.frame.DataFrame:
+        data = pd.DataFrame(dataframe['data'].toarray())
+        target = pd.Series(dataframe['target'])
+
+    else:
+        data = dataframe['data']
+        target = dataframe['target']
+
+    data = _pandas_preprocess_data(data)
+    target = _pandas_preprocess_target(target)
+    categorias = np.unique(target)
+    
+
+    return data, target, categorias

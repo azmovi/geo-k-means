@@ -30,9 +30,11 @@ METRICAS = {
     'adjusted mutual info': metrics.adjusted_mutual_info_score,
     'normalized mutual info': metrics.normalized_mutual_info_score,
     'silhouette': metrics.silhouette_score,
-    'calinski harabasz': calinski_harabasz_score,
-    'davies bouldin': davies_bouldin_score,
+    'calinski harabasz': metrics.calinski_harabasz_score,
+    'davies bouldin': metrics.davies_bouldin_score,
 }
+
+OUTROS = ['silhouette', 'calinski harabasz', 'davies bouldin']
 
 OPENML_DATASETS = [
     'iris',
@@ -124,9 +126,14 @@ def sklearn_parametrizer(
     for _ in range(n_iter):
         kmeans.fit(data)
         for metrica in dict_de_metricas.keys():
-            dict_dos_resultados[metrica].append(
-                dict_de_metricas[metrica](labels, kmeans.labels_)
-            )
+            if metrica in OUTROS:
+                dict_dos_resultados[metrica].append(
+                    dict_de_metricas[metrica](data, kmeans.labels_)
+                )
+            else:
+                dict_dos_resultados[metrica].append(
+                    dict_de_metricas[metrica](labels, kmeans.labels_)
+                )
 
     for key, value in dict_dos_resultados.items():
         dict_dos_resultados[key] = round(np.mean(value), 3)
@@ -166,9 +173,14 @@ def kmedias_parametrizer(
     for _ in range(n_iter):
         kmedias.fit()
         for metrica in dict_de_metricas.keys():
-            dict_dos_resultados[metrica].append(
-                dict_de_metricas[metrica](labels, kmedias.rotulo)
-            )
+            if metrica in OUTROS:
+                dict_dos_resultados[metrica].append(
+                    dict_de_metricas[metrica](data, kmedias.rotulo)
+                )
+            else:
+                dict_dos_resultados[metrica].append(
+                    dict_de_metricas[metrica](labels, kmedias.rotulo)
+                )
 
     for key, value in dict_dos_resultados.items():
         dict_dos_resultados[key] = round(np.mean(value), 3)
@@ -210,9 +222,14 @@ def topkmeans_parametrizer(
     for _ in range(n_iter):
         topkmeans.fit()
         for metrica in dict_de_metricas.keys():
-            dict_dos_resultados[metrica].append(
-                dict_de_metricas[metrica](labels, topkmeans.rotulo)
-            )
+            if metrica in OUTROS:
+                dict_dos_resultados[metrica].append(
+                    dict_de_metricas[metrica](data, topkmeans.rotulo)
+                )
+            else:
+                dict_dos_resultados[metrica].append(
+                    dict_de_metricas[metrica](labels, topkmeans.rotulo)
+                )
 
     for key, value in dict_dos_resultados.items():
         dict_dos_resultados[key] = round(np.mean(value), 3)
@@ -236,22 +253,23 @@ async def desempenho_abordagem(
             version += 1
 
     if df is not None:
-        categorias = df['target'].unique()
-        n_class = len(categorias)
         dicio_de_metricas = {'nome': nome}
-        data, labels = preprocess(df)
+        data, labels, categorias = preprocess(df)
+        n_class = len(categorias)
 
         if tipo == 0:
             dicio_de_metricas.update(
                 sklearn_parametrizer(data, labels, n_class, METRICAS, n_iter)
             )
+
         if tipo == 1:
             dicio_de_metricas.update(
-                kmedias_parametrizer(data, labels, n_class, METRICAS, n_iter)
+                topkmeans_parametrizer(data, labels, n_class, METRICAS, n_iter)
             )
+
         if tipo == 2:
             dicio_de_metricas.update(
-                topkmeans_parametrizer(data, labels, n_class, METRICAS, n_iter)
+                kmedias_parametrizer(data, labels, n_class, METRICAS, n_iter)
             )
 
     return dicio_de_metricas
@@ -296,15 +314,18 @@ async def exec_abordagem(tipo: bool):
 async def cria_csv_kmeans(tipo: int) -> dict[str, str | float]:
     string = '_desempenho.csv'
     lista_de_dict = None
+
     if tipo == 0:
         lista_de_dict = await exec_abordagem(tipo)
         string = 'sklearn' + string
+
     if tipo == 1:
         lista_de_dict = await exec_abordagem(tipo)
-        string = 'kmedias' + string
+        string = 'topkmeans' + string
+
     if tipo == 2:
         lista_de_dict = await exec_abordagem(tipo)
-        string = 'topkmeans' + string
+        string = 'kmedias' + string
 
     if lista_de_dict:
         df = pd.DataFrame(lista_de_dict)
@@ -315,8 +336,7 @@ async def cria_csv_kmeans(tipo: int) -> dict[str, str | float]:
 
 async def main() -> None:
     resultados = []
-    tipo = 2
-    for _ in range(1):
+    for tipo in range(2):
         resultados.append(await cria_csv_kmeans(tipo))
     #  lista_de_dict = exec_razao(resultados[0], resultados[1])
     # df = pd.DataFrame(lista_de_dict)
