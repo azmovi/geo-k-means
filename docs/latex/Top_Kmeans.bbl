@@ -1,0 +1,519 @@
+%% BioMed_Central_Bib_Style_v1.01
+
+\begin{thebibliography}{32}
+% BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
+\ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
+\ifx \binits  \undefined \def \binits#1{#1}\fi
+\ifx \bauthor  \undefined \def \bauthor#1{#1}\fi
+\ifx \batitle  \undefined \def \batitle#1{#1}\fi
+\ifx \bjtitle  \undefined \def \bjtitle#1{#1}\fi
+\ifx \bvolume  \undefined \def \bvolume#1{\textbf{#1}}\fi
+\ifx \byear  \undefined \def \byear#1{#1}\fi
+\ifx \bissue  \undefined \def \bissue#1{#1}\fi
+\ifx \bfpage  \undefined \def \bfpage#1{#1}\fi
+\ifx \blpage  \undefined \def \blpage #1{#1}\fi
+\ifx \burl  \undefined \def \burl#1{\textsf{#1}}\fi
+\ifx \doiurl  \undefined \def \doiurl#1{\url{https://doi.org/#1}}\fi
+\ifx \betal  \undefined \def \betal{\textit{et al.}}\fi
+\ifx \binstitute  \undefined \def \binstitute#1{#1}\fi
+\ifx \binstitutionaled  \undefined \def \binstitutionaled#1{#1}\fi
+\ifx \bctitle  \undefined \def \bctitle#1{#1}\fi
+\ifx \beditor  \undefined \def \beditor#1{#1}\fi
+\ifx \bpublisher  \undefined \def \bpublisher#1{#1}\fi
+\ifx \bbtitle  \undefined \def \bbtitle#1{#1}\fi
+\ifx \bedition  \undefined \def \bedition#1{#1}\fi
+\ifx \bseriesno  \undefined \def \bseriesno#1{#1}\fi
+\ifx \blocation  \undefined \def \blocation#1{#1}\fi
+\ifx \bsertitle  \undefined \def \bsertitle#1{#1}\fi
+\ifx \bsnm \undefined \def \bsnm#1{#1}\fi
+\ifx \bsuffix \undefined \def \bsuffix#1{#1}\fi
+\ifx \bparticle \undefined \def \bparticle#1{#1}\fi
+\ifx \barticle \undefined \def \barticle#1{#1}\fi
+\bibcommenthead
+\ifx \bconfdate \undefined \def \bconfdate #1{#1}\fi
+\ifx \botherref \undefined \def \botherref #1{#1}\fi
+\ifx \url \undefined \def \url#1{\textsf{#1}}\fi
+\ifx \bchapter \undefined \def \bchapter#1{#1}\fi
+\ifx \bbook \undefined \def \bbook#1{#1}\fi
+\ifx \bcomment \undefined \def \bcomment#1{#1}\fi
+\ifx \oauthor \undefined \def \oauthor#1{#1}\fi
+\ifx \citeauthoryear \undefined \def \citeauthoryear#1{#1}\fi
+\ifx \endbibitem  \undefined \def \endbibitem {}\fi
+\ifx \bconflocation  \undefined \def \bconflocation#1{#1}\fi
+\ifx \arxivurl  \undefined \def \arxivurl#1{\textsf{#1}}\fi
+\csname PreBibitemsHook\endcsname
+
+%%% 1
+\bibitem[\protect\citeauthoryear{Ezugwu et~al.}{2022}]{Clustering1}
+\begin{barticle}
+\bauthor{\bsnm{Ezugwu}, \binits{A.E.}},
+\bauthor{\bsnm{Ikotun}, \binits{A.M.}},
+\bauthor{\bsnm{Oyelade}, \binits{O.O.}},
+\bauthor{\bsnm{Abualigah}, \binits{L.}},
+\bauthor{\bsnm{Agushaka}, \binits{J.O.}},
+\bauthor{\bsnm{Eke}, \binits{C.I.}},
+\bauthor{\bsnm{Akinyelu}, \binits{A.A.}}:
+\batitle{A comprehensive survey of clustering algorithms: State-of-the-art
+  machine learning applications, taxonomy, challenges, and future research
+  prospects}.
+\bjtitle{Engineering Applications of Artificial Intelligence}
+\bvolume{110},
+\bfpage{104743}
+(\byear{2022})
+\end{barticle}
+\endbibitem
+
+%%% 2
+\bibitem[\protect\citeauthoryear{Soheil et~al.}{2020}]{Clustering2}
+\begin{barticle}
+\bauthor{\bsnm{Soheil}, \binits{S.B.}},
+\bauthor{\bsnm{M{\"u}ller}, \binits{N.}},
+\bauthor{\bsnm{Plant}, \binits{C.}},
+\bauthor{\bsnm{B{\"o}hm}, \binits{C.}}:
+\batitle{Clustering of mixed-type data considering concept hierarchies: problem
+  specification and algorithm}.
+\bjtitle{International Journal of Data Science and Analytics}
+\bvolume{10},
+\bfpage{233}--\blpage{248}
+(\byear{2020})
+\end{barticle}
+\endbibitem
+
+%%% 3
+\bibitem[\protect\citeauthoryear{Benabdellah et~al.}{2019}]{Clustering3}
+\begin{barticle}
+\bauthor{\bsnm{Benabdellah}, \binits{A.C.}},
+\bauthor{\bsnm{Benghabrit}, \binits{A.}},
+\bauthor{\bsnm{Bouhaddou}, \binits{I.}}:
+\batitle{A survey of clustering algorithms for an industrial context}.
+\bjtitle{Procedia Computer Science}
+\bvolume{148},
+\bfpage{291}--\blpage{302}
+(\byear{2019})
+\end{barticle}
+\endbibitem
+
+%%% 4
+\bibitem[\protect\citeauthoryear{Li et~al.}{2020}]{Clustering4}
+\begin{barticle}
+\bauthor{\bsnm{Li}, \binits{X.}},
+\bauthor{\bsnm{Liang}, \binits{W.}},
+\bauthor{\bsnm{Zhang}, \binits{X.}},
+\bauthor{\bsnm{Qing}, \binits{S.}},
+\bauthor{\bsnm{Chang}, \binits{P.-C.}}:
+\batitle{A cluster validity evaluation method for dynamically determining the
+  near-optimal number of clusters}.
+\bjtitle{Soft Comput.}
+\bvolume{24}(\bissue{12}),
+\bfpage{9227}--\blpage{9241}
+(\byear{2020})
+\end{barticle}
+\endbibitem
+
+%%% 5
+\bibitem[\protect\citeauthoryear{Saxena et~al.}{2017}]{Clustering5}
+\begin{barticle}
+\bauthor{\bsnm{Saxena}, \binits{A.}},
+\bauthor{\bsnm{Prasad}, \binits{M.}},
+\bauthor{\bsnm{Gupta}, \binits{A.}},
+\bauthor{\bsnm{Bharill}, \binits{N.}},
+\bauthor{\bsnm{Patel}, \binits{O.P.}},
+\bauthor{\bsnm{Tiwari}, \binits{A.}},
+\bauthor{\bsnm{Er}, \binits{M.J.}},
+\bauthor{\bsnm{Ding}, \binits{W.}},
+\bauthor{\bsnm{Lin}, \binits{C.-T.}}:
+\batitle{A review of clustering techniques and developments}.
+\bjtitle{Neurocomputing}
+\bvolume{267},
+\bfpage{664}--\blpage{681}
+(\byear{2017})
+\end{barticle}
+\endbibitem
+
+%%% 6
+\bibitem[\protect\citeauthoryear{Sinaga and Yang}{2020}]{kmeans1}
+\begin{barticle}
+\bauthor{\bsnm{Sinaga}, \binits{K.P.}},
+\bauthor{\bsnm{Yang}, \binits{M.-S.}}:
+\batitle{Unsupervised k-means clustering algorithm}.
+\bjtitle{IEEE Access}
+\bvolume{8},
+\bfpage{80716}--\blpage{80727}
+(\byear{2020})
+\end{barticle}
+\endbibitem
+
+%%% 7
+\bibitem[\protect\citeauthoryear{Chong}{2021}]{kmeans2}
+\begin{barticle}
+\bauthor{\bsnm{Chong}, \binits{B.}}:
+\batitle{K-means clustering algorithm: a brief review}.
+\bjtitle{Academic Journal of Computing \& Information Science}
+\bvolume{4}(\bissue{5}),
+\bfpage{37}--\blpage{40}
+(\byear{2021})
+\end{barticle}
+\endbibitem
+
+%%% 8
+\bibitem[\protect\citeauthoryear{McInnes et~al.}{2017}]{HDBSCAN}
+\begin{barticle}
+\bauthor{\bsnm{McInnes}, \binits{L.}},
+\bauthor{\bsnm{Healy}, \binits{J.}},
+\bauthor{\bsnm{Astels}, \binits{S.}}:
+\batitle{hdbscan: Hierarchical density based clustering}.
+\bjtitle{Journal of Open Source Software}
+\bvolume{2}(\bissue{11}),
+\bfpage{205}
+(\byear{2017})
+\end{barticle}
+\endbibitem
+
+%%% 9
+\bibitem[\protect\citeauthoryear{Stewart  and Al-Khassaweneh}{2022}]{HDBSCAN*}
+\begin{botherref}
+\oauthor{\bsnm{Stewart }, \binits{G.}},
+\oauthor{\bsnm{Al-Khassaweneh}, \binits{M.}}:
+An implementation of the hdbscan* clustering algorithm.
+Applied Sciences
+\textbf{12}(5)
+(2022)
+\end{botherref}
+\endbibitem
+
+%%% 10
+\bibitem[\protect\citeauthoryear{Bushra and Yi}{2021}]{HDBSCAN_}
+\begin{barticle}
+\bauthor{\bsnm{Bushra}, \binits{A.A.}},
+\bauthor{\bsnm{Yi}, \binits{G.}}:
+\batitle{Comparative analysis review of pioneering dbscan and successive
+  density-based clustering algorithms}.
+\bjtitle{IEEE Access}
+\bvolume{9},
+\bfpage{87918}--\blpage{87935}
+(\byear{2021})
+\end{barticle}
+\endbibitem
+
+%%% 11
+\bibitem[\protect\citeauthoryear{Kriegel et~al.}{2009}]{cluster_high_dim_1}
+\begin{botherref}
+\oauthor{\bsnm{Kriegel}, \binits{H.-P.}},
+\oauthor{\bsnm{Kr\"{o}ger}, \binits{P.}},
+\oauthor{\bsnm{Zimek}, \binits{A.}}:
+Clustering high-dimensional data: A survey on subspace clustering,
+  pattern-based clustering, and correlation clustering.
+ACM Trans. Knowl. Discov. Data
+\textbf{3}(1)
+(2009)
+\end{botherref}
+\endbibitem
+
+%%% 12
+\bibitem[\protect\citeauthoryear{Houle et~al.}{2010}]{cluster_high_dim_2}
+\begin{bchapter}
+\bauthor{\bsnm{Houle}, \binits{M.E.}},
+\bauthor{\bsnm{Kriegel}, \binits{H.}},
+\bauthor{\bsnm{Kr{\"{o}}ger}, \binits{P.}},
+\bauthor{\bsnm{Schubert}, \binits{E.}},
+\bauthor{\bsnm{Zimek}, \binits{A.}}:
+\bctitle{Can shared-neighbor distances defeat the curse of dimensionality?}
+In: \bbtitle{Proceedings of the 22nd International Conference on Scientific and
+  Statistical Database Management (SSDBM), Heidelberg, Germany},
+pp. \bfpage{482}--\blpage{500}
+(\byear{2010})
+\end{bchapter}
+\endbibitem
+
+%%% 13
+\bibitem[\protect\citeauthoryear{Thrun and Ultsch}{2021}]{cluster_high_dim_3}
+\begin{barticle}
+\bauthor{\bsnm{Thrun}, \binits{M.C.}},
+\bauthor{\bsnm{Ultsch}, \binits{A.}}:
+\batitle{{Using Projection-Based Clustering to Find Distance- and Density-Based
+  Clusters in High-Dimensional Data}}.
+\bjtitle{Journal of Classification}
+\bvolume{38}(\bissue{2}),
+\bfpage{280}--\blpage{312}
+(\byear{2021})
+\end{barticle}
+\endbibitem
+
+%%% 14
+\bibitem[\protect\citeauthoryear{Loyd}{1982}]{Loyd}
+\begin{barticle}
+\bauthor{\bsnm{Loyd}, \binits{S.P.}}:
+\batitle{Least squares quantization in pcm}.
+\bjtitle{IEEE Transactions on Information Theory}
+\bvolume{28}(\bissue{2}),
+\bfpage{129}--\blpage{137}
+(\byear{1982})
+\end{barticle}
+\endbibitem
+
+%%% 15
+\bibitem[\protect\citeauthoryear{Ikotun et~al.}{2023}]{kmeans_survey}
+\begin{barticle}
+\bauthor{\bsnm{Ikotun}, \binits{A.M.}},
+\bauthor{\bsnm{Ezugwu}, \binits{A.E.}},
+\bauthor{\bsnm{Abualigah}, \binits{L.}},
+\bauthor{\bsnm{Abuhaija}, \binits{B.}},
+\bauthor{\bsnm{Heming}, \binits{J.}}:
+\batitle{K-means clustering algorithms: A comprehensive review, variants
+  analysis, and advances in the era of big data}.
+\bjtitle{Information Sciences}
+\bvolume{622},
+\bfpage{178}--\blpage{210}
+(\byear{2023})
+\end{barticle}
+\endbibitem
+
+%%% 16
+\bibitem[\protect\citeauthoryear{Cormen et~al.}{2022}]{Cormen}
+\begin{bbook}
+\bauthor{\bsnm{Cormen}, \binits{T.H.}},
+\bauthor{\bsnm{Leiserson}, \binits{C.E.}},
+\bauthor{\bsnm{Rivest}, \binits{R.L.}},
+\bauthor{\bsnm{Stein}, \binits{C.}}:
+\bbtitle{Introduction to Algorithms},
+\bedition{4th} edn.
+\bpublisher{The MIT Press},
+\blocation{New York}
+(\byear{2022})
+\end{bbook}
+\endbibitem
+
+%%% 17
+\bibitem[\protect\citeauthoryear{{Gorban} and {Tyukin}}{2018}]{Manifold1}
+\begin{barticle}
+\bauthor{\bsnm{{Gorban}}, \binits{A.N.}},
+\bauthor{\bsnm{{Tyukin}}, \binits{I.Y.}}:
+\batitle{{Blessing of dimensionality: mathematical foundations of the
+  statistical physics of data}}.
+\bjtitle{Philosophical Transactions of the Royal Society of London Series A}
+\bvolume{376}(\bissue{2118}),
+\bfpage{20170237}
+(\byear{2018})
+\end{barticle}
+\endbibitem
+
+%%% 18
+\bibitem[\protect\citeauthoryear{Fefferman et~al.}{2016}]{Manifold2}
+\begin{barticle}
+\bauthor{\bsnm{Fefferman}, \binits{C.}},
+\bauthor{\bsnm{Mitter}, \binits{S.}},
+\bauthor{\bsnm{Narayanan}, \binits{H.}}:
+\batitle{Testing the manifold hypothesis}.
+\bjtitle{Journal of the American Mathematical Society}
+\bvolume{29}(\bissue{4}),
+\bfpage{983}--\blpage{1049}
+(\byear{2016})
+\end{barticle}
+\endbibitem
+
+%%% 19
+\bibitem[\protect\citeauthoryear{Dong et~al.}{2011}]{k-NNG}
+\begin{bchapter}
+\bauthor{\bsnm{Dong}, \binits{W.}},
+\bauthor{\bsnm{Moses}, \binits{C.}},
+\bauthor{\bsnm{Li}, \binits{K.}}:
+\bctitle{Efficient k-nearest neighbor graph construction for generic similarity
+  measures}.
+In: \bbtitle{Proceedings of the 20th International Conference on World Wide
+  Web}.
+\bsertitle{WWW '11},
+pp. \bfpage{577}--\blpage{586}.
+\bpublisher{Association for Computing Machinery},
+\blocation{New York, NY, USA}
+(\byear{2011})
+\end{bchapter}
+\endbibitem
+
+%%% 20
+\bibitem[\protect\citeauthoryear{Abu-Aisheh et~al.}{2020}]{k-NNG2}
+\begin{barticle}
+\bauthor{\bsnm{Abu-Aisheh}, \binits{Z.}},
+\bauthor{\bsnm{Raveaux}, \binits{R.}},
+\bauthor{\bsnm{Ramel}, \binits{J.-Y.}}:
+\batitle{Efficient k-nearest neighbors search in graph space}.
+\bjtitle{Pattern Recognition Letters}
+\bvolume{134},
+\bfpage{77}--\blpage{86}
+(\byear{2020})
+\end{barticle}
+\endbibitem
+
+%%% 21
+\bibitem[\protect\citeauthoryear{Silva and Tenenbaum}{2002}]{NIPS2002}
+\begin{bchapter}
+\bauthor{\bsnm{Silva}, \binits{V.}},
+\bauthor{\bsnm{Tenenbaum}, \binits{J.}}:
+\bctitle{Global versus local methods in nonlinear dimensionality reduction}.
+In: \beditor{\bsnm{Becker}, \binits{S.}},
+\beditor{\bsnm{Thrun}, \binits{S.}},
+\beditor{\bsnm{Obermayer}, \binits{K.}} (eds.)
+\bbtitle{Advances in Neural Information Processing Systems},
+vol. \bseriesno{15}.
+\bpublisher{MIT Press},
+\blocation{Vancouver, Canada}
+(\byear{2002})
+\end{bchapter}
+\endbibitem
+
+%%% 22
+\bibitem[\protect\citeauthoryear{Bernstein et~al.}{2000}]{ACT}
+\begin{botherref}
+\oauthor{\bsnm{Bernstein}, \binits{M.}},
+\oauthor{\bsnm{Silva}, \binits{V.}},
+\oauthor{\bsnm{Langford}, \binits{J.C.}},
+\oauthor{\bsnm{Tenenbaum}, \binits{J.B.}}:
+Graph approximations to geodesics on embedded manifolds.
+Preprint at:
+  \url{https://users.math.msu.edu/users/iwenmark/Teaching/MTH995/Papers/MMod_BSLT00.pdf}
+(2000)
+\end{botherref}
+\endbibitem
+
+%%% 23
+\bibitem[\protect\citeauthoryear{Rand}{1971}]{Rand1}
+\begin{barticle}
+\bauthor{\bsnm{Rand}, \binits{W.M.}}:
+\batitle{Objective criteria for the evaluation of clustering methods}.
+\bjtitle{Journal of the American Statistical Association}
+\bvolume{66}(\bissue{336}),
+\bfpage{846}--\blpage{850}
+(\byear{1971})
+\end{barticle}
+\endbibitem
+
+%%% 24
+\bibitem[\protect\citeauthoryear{Hubert and Arabie}{1985}]{Rand2}
+\begin{barticle}
+\bauthor{\bsnm{Hubert}, \binits{L.}},
+\bauthor{\bsnm{Arabie}, \binits{P.}}:
+\batitle{Comparing partitions}.
+\bjtitle{Journal of Classification}
+\bvolume{2}(\bissue{1}),
+\bfpage{193}--\blpage{218}
+(\byear{1985})
+\end{barticle}
+\endbibitem
+
+%%% 25
+\bibitem[\protect\citeauthoryear{Vinh et~al.}{2009}]{Mutual}
+\begin{bchapter}
+\bauthor{\bsnm{Vinh}, \binits{N.X.}},
+\bauthor{\bsnm{Epps}, \binits{J.}},
+\bauthor{\bsnm{Bailey}, \binits{J.}}:
+\bctitle{Information theoretic measures for clusterings comparison: Is a
+  correction for chance necessary?}
+In: \bbtitle{Proceedings of the 26th Annual International Conference on Machine
+  Learning}.
+\bsertitle{ICML '09},
+pp. \bfpage{1073}--\blpage{1080}.
+\bpublisher{Association for Computing Machinery},
+\blocation{New York, NY, USA}
+(\byear{2009})
+\end{bchapter}
+\endbibitem
+
+%%% 26
+\bibitem[\protect\citeauthoryear{Rosenberg and Hirschberg}{2007}]{Vmeasure}
+\begin{bchapter}
+\bauthor{\bsnm{Rosenberg}, \binits{A.}},
+\bauthor{\bsnm{Hirschberg}, \binits{J.}}:
+\bctitle{{V}-measure: A conditional entropy-based external cluster evaluation
+  measure}.
+In: \beditor{\bsnm{Eisner}, \binits{J.}} (ed.)
+\bbtitle{Proceedings of the 2007 Joint Conference on Empirical Methods in
+  Natural Language Processing and Computational Natural Language Learning
+  ({EMNLP}-{C}o{NLL})},
+pp. \bfpage{410}--\blpage{420}.
+\bpublisher{Association for Computational Linguistics},
+\blocation{Prague, Czech Republic}
+(\byear{2007})
+\end{bchapter}
+\endbibitem
+
+%%% 27
+\bibitem[\protect\citeauthoryear{Stiglic and Kokol}{2010}]{GEMLeR}
+\begin{botherref}
+\oauthor{\bsnm{Stiglic}, \binits{G.}},
+\oauthor{\bsnm{Kokol}, \binits{P.}}:
+Stability of ranked gene lists in large microarray analysis studies.
+Journal of Biomedicine and Biotechnology,
+616358
+(2010)
+\end{botherref}
+\endbibitem
+
+%%% 28
+\bibitem[\protect\citeauthoryear{Karami and Johansson}{2014}]{Opt}
+\begin{barticle}
+\bauthor{\bsnm{Karami}, \binits{A.}},
+\bauthor{\bsnm{Johansson}, \binits{R.}}:
+\batitle{Choosing dbscan parameters automatically using differential
+  evolution}.
+\bjtitle{International Journal of Computer Applications}
+\bvolume{91}(\bissue{7}),
+\bfpage{1}--\blpage{11}
+(\byear{2014})
+\end{barticle}
+\endbibitem
+
+%%% 29
+\bibitem[\protect\citeauthoryear{Marchette}{2004}]{RandomGraphs}
+\begin{bbook}
+\bauthor{\bsnm{Marchette}, \binits{D.J.}}:
+\bbtitle{Random Graphs for Statistical Pattern Recognition},
+\bedition{1st} edn.
+\bpublisher{Wiley},
+\blocation{New York}
+(\byear{2004})
+\end{bbook}
+\endbibitem
+
+%%% 30
+\bibitem[\protect\citeauthoryear{Maier et~al.}{2009}]{LOG}
+\begin{barticle}
+\bauthor{\bsnm{Maier}, \binits{M.}},
+\bauthor{\bsnm{Hein}, \binits{M.}},
+\bauthor{\bsnm{Luxburg}, \binits{U.V.}}:
+\batitle{Optimal construction of k-nearest-neighbor graphs for identifying
+  noisy clusters}.
+\bjtitle{Theoretical Computer Science}
+\bvolume{410}(\bissue{19}),
+\bfpage{1749}--\blpage{1764}
+(\byear{2009})
+\end{barticle}
+\endbibitem
+
+%%% 31
+\bibitem[\protect\citeauthoryear{Arthur and Vassilvitskii}{2007}]{kmeans++}
+\begin{bchapter}
+\bauthor{\bsnm{Arthur}, \binits{D.}},
+\bauthor{\bsnm{Vassilvitskii}, \binits{S.}}:
+\bctitle{K-means++: The advantages of careful seeding}.
+In: \bbtitle{Proceedings of the Eighteenth Annual ACM-SIAM Symposium on
+  Discrete Algorithms}.
+\bsertitle{SODA '07},
+pp. \bfpage{1027}--\blpage{1035}.
+\bpublisher{Society for Industrial and Applied Mathematics},
+\blocation{USA}
+(\byear{2007})
+\end{bchapter}
+\endbibitem
+
+%%% 32
+\bibitem[\protect\citeauthoryear{Fortunato}{2010}]{Community}
+\begin{barticle}
+\bauthor{\bsnm{Fortunato}, \binits{S.}}:
+\batitle{Community detection in graphs}.
+\bjtitle{Physics Reports}
+\bvolume{486}(\bissue{3}),
+\bfpage{75}--\blpage{174}
+(\byear{2010})
+\end{barticle}
+\endbibitem
+
+\end{thebibliography}
