@@ -1,48 +1,51 @@
-[tool.poetry]
+[project]
 name = "geo-k-means"
 version = "0.1.0"
-description = ""
-authors = ["azevedo <azevedoantoniocicero@gmail.com>"]
+description = "geo-k-means project"
 readme = "README.md"
-packages = [{include = "geo_k_means"}]
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib >= 3.7.2",
+    "scikit-learn >= 1.3.0",
+    "openml >= 0.14.1",
+    "numpy >= 1.26.0",
+    "scipy >= 1.9.0",
+    "pandas >= 2.1.2",
+    "seaborn >= 0.13.2",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.13"
-pytest = "^7.4.0"
-pytest-cov = "^4.1.0"
-blue = "^0.9.1"
-isort = "^5.12.0"
-taskipy = "^1.12.0"
-matplotlib = "^3.7.2"
-scikit-learn = "^1.3.0"
-openml = "^0.14.1"
-numpy = "^1.26.0"
-scipy = "^1.9.0"
-pandas = "^2.1.2"
-seaborn = "^0.13.2"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
+[tool.uv]
+dev-dependencies = [
+    "ruff >= 0.8.0",
+    "pytest >= 8.3.3",
+    "pytest-cov >= 6.0.0",
+    "pytest-sugar >= 1.0.0",
+]
 
 [tool.pytest.ini_options]
-pythopath = "."
+pythonpath = "."
 addopts = "-p no:warnings --doctest-modules"
 
-[tool.isort]
-profile = "black"
-line_length = 79
+[tool.ruff]
+line-length = 79
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+preview = true
+select = ["I", "F", "E", "W", "PL", "PT"]
+
+[tool.ruff.format]
+preview = true
+quote-style = "single"
 
 [tool.coverage.run]
 omit = [
     "geo_k_means/desempenho.py",
-    ]
-
+]
 
 [tool.taskipy.tasks]
-lint = "blue --check --diff . && isort --check --diff ."
+lint = "ruff check --fix"
 pre_test = "task lint"
 test = "pytest -s -x --cov=geo_k_means -vv --ignore=geo_k_means/desempenho.py"
 post_test = "coverage html"
+

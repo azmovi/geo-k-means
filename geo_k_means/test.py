@@ -1,5 +1,6 @@
 from sklearn.datasets import fetch_openml
 from sklearn.datasets._openml import OpenMLError
+import numpy as np
 
 OPENML_DATASETS = [
     'iris',
@@ -49,39 +50,42 @@ OPENML_DATASETS = [
     'tr31.wc',
     'tr45.wc',
 ]
-from openml import fetch_openml
-from openml.exceptions import OpenMLError
 
-def caracteristicas(nome: str):
-    version = 1
-    dataset = None
-    while version <= 5:
+def fetch_dataset_features(name: str, numero: int):
+    for version in range(1, 6):  # Tenta até 5 versões
         try:
-            # Obtém o conjunto de dados a partir do OpenML
-            dataset = fetch_openml(name=nome, version=version, parser='auto')
+            dataset = fetch_openml(name=name, version=version, parser='auto')
             break
         except OpenMLError:
-            version += 1
-    
+            continue
+    else:
+        print(f"[WARN] Dataset '{name}' não encontrado em até 5 versões.")
+        return None
+
+    # Obtém informações do dataset
     if not dataset:
         return
 
-    nome_dataset = dataset.name
-    num_amostras = dataset.shape[0]
-    num_features = dataset.shape[1]
-    
-    if 'class' in dataset.features:
-        num_classes = len(dataset.features['class'].values)
-    else:
-        num_classes = 'Não disponível'
-    
-    return {
-        'nome': nome_dataset,
-        'amostras': num_amostras,
-        'features': num_features,
-        'num_classes': num_classes
-    }
+    if hasattr(dataset, 'data'):
+        num_amostras = dataset.data.shape[0]
+        num_features = dataset.data.shape[1]
+        num_classes = len(np.unique(dataset['target']))
 
-for dataset in OPENML_DATASETS:
-    print(caracteristicas(dataset))
 
+        return {
+            'Numero': numero,
+            'Conjunto de Dados': name, 
+            'amostras': num_amostras,
+            'Atributos': num_features,
+            'Classes': num_classes
+        }
+
+def main():
+    for idx, dataset in enumerate(OPENML_DATASETS, start=1):
+        info = fetch_dataset_features(dataset, idx)
+        if info:
+            print(info)
+        else:
+            print(f"[INFO] Nenhuma característica encontrada para '{dataset}'.")
+#print(len(OPENML_DATASETS))
+main()
